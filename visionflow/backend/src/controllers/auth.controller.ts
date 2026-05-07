@@ -7,6 +7,7 @@ function generateToken(id: string, email: string): string {
   return jwt.sign({ id, email }, secret, { expiresIn: '7d' })
 }
 
+
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password } = req.body
