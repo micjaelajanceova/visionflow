@@ -1,6 +1,6 @@
-# 🎯 LifeBoard – Fullstack Goal Tracker
+# 🎯 VisionFlow – Fullstack Goal Tracker
 
-A fullstack TypeScript application for tracking personal goals, building habits, and staying motivated with a visual vision board and task calendar.
+A fullstack TypeScript application for tracking personal goals, to build habits and stay motivated with a visual vision board and task calendar.
 
 ## Tech Stack
 
@@ -9,12 +9,10 @@ A fullstack TypeScript application for tracking personal goals, building habits,
 
 ## Features
 
-- 🎯 **Goals** – Create, edit, delete goals with categories, tracking types and deadlines
-- 🖼 **Vision Board** – Masonry collage of all your goals with images
+- 🎯 **Goals** – Create, edit, delete goals with categories, setting days to repeat task in each weak to meet your goals and deadlines
+- 🖼 **Vision Board** – Collage of all your goals with images
 - 📅 **Calendar** – Monthly view with task/todo management per day, goal deadline markers
 - 📈 **Progress** – Log daily/weekly progress per goal
-- 📓 **Journal** – Reflective writing entries per goal
-- 🏆 **30-Day Challenges** – Habit building with streak tracking
 - 🌍 **Explore** – Browse public goals from the community
 - 🔐 **Auth** – JWT-based login/registration with navigation guards
 
