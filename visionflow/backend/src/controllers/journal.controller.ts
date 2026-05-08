@@ -4,7 +4,6 @@ import Journal from '../models/Journal'
 export const getJournals = async (req: Request, res: Response): Promise<void> => {
   try {
     const entries = await Journal.find({ user: req.user?.id }).populate('goal', 'title').sort({ createdAt: -1 })
-    console.log('journal entries loaded:', entries.length)
     res.json(entries)
   } catch (error) {
     res.status(500).json({ message: 'could not load journals', error })
