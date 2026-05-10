@@ -16,7 +16,6 @@ export const useJournalStore = defineStore('journal', () => {
 
   const fetchEntries = async () => {
     const { data } = await client.get('/journals')
-    console.log('journal entries:', data)
     entries.value = data
   }
 
