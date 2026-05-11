@@ -137,5 +137,22 @@ export const useTaskStore = defineStore('tasks', () => {
     return _saveDateSubTasks(taskId, date, current)
   }
 
-  return { tasks, loading, fetchTasks, createTask, updateTask, toggleTask, completeDateTask, skipDateTask, deleteTask, getTasksForDate, isDateCompleted, toggleSubTask, toggleSubTaskForDate, getSubTaskStateForDate, getDateSubTasks, addDateSubTaskItem, toggleDateSubTaskItem, removeDateSubTaskItem }
+  const pendingInvites = ref<Task[]>([])
+
+  const fetchPendingInvites = async () => {
+    const { data } = await client.get<Task[]>('/tasks/invites/pending')
+    pendingInvites.value = data
+  }
+
+  const inviteToTask = async (taskId: string, email: string) => {
+    await client.post(`/tasks/${taskId}/invite`, { email })
+  }
+
+  const respondToInvite = async (taskId: string, accept: boolean) => {
+    await client.put(`/tasks/${taskId}/invite/respond`, { accept })
+    pendingInvites.value = pendingInvites.value.filter(t => t._id !== taskId)
+    if (accept) await fetchTasks()
+  }
+
+  return { tasks, loading, pendingInvites, fetchTasks, fetchPendingInvites, inviteToTask, respondToInvite, createTask, updateTask, toggleTask, completeDateTask, skipDateTask, deleteTask, getTasksForDate, isDateCompleted, toggleSubTask, toggleSubTaskForDate, getSubTaskStateForDate, getDateSubTasks, addDateSubTaskItem, toggleDateSubTaskItem, removeDateSubTaskItem }
 })

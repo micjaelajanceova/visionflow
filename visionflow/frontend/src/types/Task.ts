@@ -24,8 +24,15 @@ export interface DateSubTasks {
   items: DateSubTaskItem[]
 }
 
+export interface TaskParticipant {
+  userId: string
+  email: string
+  accepted: boolean
+}
+
 export interface Task {
   _id: string
+  participants: TaskParticipant[]
   title: string
   description: string
   isAllDay: boolean

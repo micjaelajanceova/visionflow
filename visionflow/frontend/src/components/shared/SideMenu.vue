@@ -48,6 +48,19 @@
         <span class="w-5 h-5 flex-shrink-0 text-blue-500" v-html="link.icon" />
         <span>{{ link.label }}</span>
       </router-link>
+
+      <router-link
+        to="/shared"
+        @click="menuOpen = false"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
+        active-class="text-blue-600 bg-blue-50 font-semibold"
+      >
+        <span class="w-5 h-5 flex-shrink-0 text-blue-500" v-html="shareNavIcon" />
+        <span class="flex-1">Shared Tasks</span>
+        <span v-if="pendingCount > 0" class="text-xs font-bold bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+          {{ pendingCount }}
+        </span>
+      </router-link>
     </nav>
 
     <!-- User & Logout -->
@@ -84,13 +97,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '../../stores/authStore'
+import { useTaskStore } from '../../stores/taskStore'
 import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
+const taskStore = useTaskStore()
 const router = useRouter()
 const menuOpen = ref(false)
+
+onMounted(async () => {
+  if (auth.isAuthenticated) await taskStore.fetchPendingInvites()
+})
+
+const pendingCount = computed(() => taskStore.pendingInvites.length)
 
 const svg = (path: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">${path}</svg>`
@@ -129,6 +150,7 @@ const navLinks = [
 ]
 
 const iconLogout = svg('<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />')
+const shareNavIcon = svg('<path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />')
 
 const handleLogout = () => {
   auth.logout()

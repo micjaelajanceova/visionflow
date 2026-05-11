@@ -1,10 +1,79 @@
 import { Request, Response } from 'express'
 import Task from '../models/Task'
+import User from '../models/User'
+
+const participantFilter = (userId: string) => ({
+  $or: [
+    { user: userId },
+    { participants: { $elemMatch: { userId, accepted: true } } },
+  ],
+})
 
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    const tasks = await Task.find({ user: req.user?.id }).sort({ createdAt: -1 })
+    const tasks = await Task.find(participantFilter(req.user!.id)).sort({ createdAt: -1 })
     res.json(tasks)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error })
+  }
+}
+
+export const getPendingInvites = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tasks = await Task.find({
+      participants: { $elemMatch: { userId: req.user!.id, accepted: false } },
+    }).populate('user', 'username email')
+    res.json(tasks)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error })
+  }
+}
+
+export const inviteToTask = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body
+    const task = await Task.findOne({ _id: req.params.id, user: req.user!.id })
+    if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+
+    const invitee = await User.findOne({ email: email.toLowerCase() })
+    if (!invitee) { res.status(404).json({ message: 'No user with that email' }); return }
+
+    if (invitee._id.equals(task.user)) {
+      res.status(400).json({ message: 'Cannot invite yourself' }); return
+    }
+
+    const already = task.participants.some(p => p.userId.equals(invitee._id))
+    if (already) { res.status(400).json({ message: 'User already invited' }); return }
+
+    task.participants.push({ userId: invitee._id, email: invitee.email, accepted: false })
+    await task.save()
+    res.json({ message: 'Invite sent' })
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error })
+  }
+}
+
+export const respondToInvite = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { accept } = req.body
+    const task = await Task.findOne({
+      _id: req.params.id,
+      participants: { $elemMatch: { userId: req.user!.id, accepted: false } },
+    })
+    if (!task) { res.status(404).json({ message: 'Invite not found' }); return }
+
+    if (accept) {
+      const p = task.participants.find(p => p.userId.equals(req.user!.id))
+      if (p) p.accepted = true
+      task.markModified('participants')
+      await task.save()
+      res.json({ message: 'Accepted' })
+    } else {
+      task.participants = task.participants.filter(p => !p.userId.equals(req.user!.id))
+      task.markModified('participants')
+      await task.save()
+      res.json({ message: 'Declined' })
+    }
   } catch (error) {
     res.status(500).json({ message: 'Server error', error })
   }
@@ -21,14 +90,27 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    // console.log('updating task:', req.params.id)
-    const task = await Task.findOneAndUpdate(
-      { _id: req.params.id, user: req.user?.id },
-      req.body,
-      { new: true, runValidators: true }
-    )
-    if (!task) { res.status(404).json({ message: 'Task not found' }); return }
-    res.json(task)
+    const userId = req.user!.id
+    const isOwner = await Task.exists({ _id: req.params.id, user: userId })
+
+    if (isOwner) {
+      const task = await Task.findOneAndUpdate(
+        { _id: req.params.id, user: userId },
+        req.body,
+        { new: true, runValidators: true }
+      )
+      if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+      res.json(task)
+    } else {
+      // Participants can only toggle completed
+      const task = await Task.findOneAndUpdate(
+        { _id: req.params.id, participants: { $elemMatch: { userId, accepted: true } } },
+        { completed: req.body.completed },
+        { new: true }
+      )
+      if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+      res.json(task)
+    }
   } catch (error) {
     res.status(500).json({ message: 'could not update task', error })
   }
@@ -37,7 +119,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
 export const completeTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, photoData, isPublic } = req.body
-    const task = await Task.findOne({ _id: req.params.id, user: req.user?.id })
+    const task = await Task.findOne({ _id: req.params.id, ...participantFilter(req.user!.id) })
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
 
     if (!task.completedDates.includes(date)) {
@@ -65,7 +147,7 @@ export const completeTaskDate = async (req: Request, res: Response): Promise<voi
 export const updateDateSubTasks = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, items } = req.body
-    const task = await Task.findOne({ _id: req.params.id, user: req.user?.id })
+    const task = await Task.findOne({ _id: req.params.id, ...participantFilter(req.user!.id) })
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     const idx = task.dateSubTasks.findIndex((d: any) => d.date === date)
     if (idx >= 0) {
@@ -84,7 +166,7 @@ export const updateDateSubTasks = async (req: Request, res: Response): Promise<v
 export const toggleSubTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, subIndex } = req.body
-    const task = await Task.findOne({ _id: req.params.id, user: req.user?.id })
+    const task = await Task.findOne({ _id: req.params.id, ...participantFilter(req.user!.id) })
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
 
     let entry = task.dateSubTaskStates.find((s: any) => s.date === date)
@@ -105,7 +187,7 @@ export const toggleSubTaskDate = async (req: Request, res: Response): Promise<vo
 export const skipTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date } = req.body
-    const task = await Task.findOne({ _id: req.params.id, user: req.user?.id })
+    const task = await Task.findOne({ _id: req.params.id, ...participantFilter(req.user!.id) })
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     if (!task.skippedDates.includes(date)) {
       task.skippedDates.push(date)

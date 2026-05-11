@@ -28,9 +28,16 @@ export interface IDateSubTasks {
   items: IDateSubTaskItem[]
 }
 
+export interface IParticipant {
+  userId: mongoose.Types.ObjectId
+  email: string
+  accepted: boolean
+}
+
 export interface ITask extends Document {
   _id: mongoose.Types.ObjectId
   user: mongoose.Types.ObjectId
+  participants: IParticipant[]
   goal?: mongoose.Types.ObjectId
   title: string
   description: string
@@ -73,6 +80,12 @@ const DateSubTaskStateSchema = new Schema<IDateSubTaskState>({
 const TaskSchema = new Schema<ITask>(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    participants: [{
+      userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+      email: { type: String, required: true },
+      accepted: { type: Boolean, default: false },
+      _id: false,
+    }],
     goal: { type: Schema.Types.ObjectId, ref: 'Goal' },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '' },

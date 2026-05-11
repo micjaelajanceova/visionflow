@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       token: generateToken(user._id.toString(), user.email),
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl },
     })
   } catch (error) {
     res.status(500).json({ message: 'something went wrong', error })
@@ -42,7 +42,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.json({
       token: generateToken(user._id.toString(), user.email),
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl },
     })
   } catch (error) {
     res.status(500).json({ message: 'something went wrong', error })
@@ -75,9 +75,13 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       }
     }
 
+    const updates: Record<string, unknown> = {}
+    if (username) updates.username = username
+    if ('avatarUrl' in req.body) updates.avatarUrl = avatarUrl
+
     const user = await User.findByIdAndUpdate(
       userId,
-      { ...(username && { username }), ...(avatarUrl !== undefined && { avatarUrl }) },
+      { $set: updates },
       { new: true }
     ).select('-password')
 
@@ -88,6 +92,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
     res.json({ id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl })
   } catch (error) {
+    console.error('updateProfile error:', error)
     res.status(500).json({ message: 'something went wrong', error })
   }
 }

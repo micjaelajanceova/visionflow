@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/progress', component: () => import('../views/ProgressView.vue'), meta: { requiresAuth: true } },
     { path: '/explore', component: () => import('../views/ExploreView.vue') },
     { path: '/profile', component: () => import('../views/ProfileView.vue'), meta: { requiresAuth: true } },
+    { path: '/shared', component: () => import('../views/SharedTasksView.vue'), meta: { requiresAuth: true } },
   ],
 })
 

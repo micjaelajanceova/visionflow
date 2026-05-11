@@ -116,9 +116,29 @@
                     </div>
                     <div class="flex gap-1 flex-shrink-0">
                       <button @click.stop="openEditTask(task, selectedDate)" class="text-slate-300 hover:text-blue-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
+                      <button @click.stop="openShare(task._id)" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" title="Share task" v-html="icon('share', 'w-3.5 h-3.5')" />
                       <button v-if="!task.isRecurring" @click.stop="taskStore.deleteTask(task._id)"
                         class="text-slate-300 hover:text-red-400 text-sm bg-transparent border-0 cursor-pointer">&#10005;</button>
                     </div>
+                  </div>
+
+                  <!-- Share panel -->
+                  <div v-if="sharingTaskId === task._id" class="px-3 pb-2.5 border-t border-slate-50 pt-2">
+                    <p class="text-xs font-medium text-slate-500 mb-1.5">Share with (enter their email)</p>
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="shareEmail"
+                        type="email"
+                        placeholder="email@example.com"
+                        class="input py-1 text-xs flex-1"
+                        @keydown.enter.prevent="sendInvite(task._id)"
+                      />
+                      <button @click="sendInvite(task._id)" class="btn btn-primary text-xs py-1 px-3" :disabled="shareLoading">
+                        {{ shareLoading ? '…' : 'Send' }}
+                      </button>
+                    </div>
+                    <p v-if="shareError" class="text-red-500 text-xs mt-1">{{ shareError }}</p>
+                    <p v-if="shareSuccess" class="text-emerald-600 text-xs mt-1">{{ shareSuccess }}</p>
                   </div>
 
                   <!-- Per-date checklist for recurring tasks -->
@@ -358,6 +378,36 @@ const photoPreview = ref('')
 const photoData = ref('')
 const photoPublic = ref(false)
 
+// Share
+const sharingTaskId = ref<string | null>(null)
+const shareEmail = ref('')
+const shareLoading = ref(false)
+const shareError = ref('')
+const shareSuccess = ref('')
+
+const openShare = (taskId: string) => {
+  sharingTaskId.value = sharingTaskId.value === taskId ? null : taskId
+  shareEmail.value = ''
+  shareError.value = ''
+  shareSuccess.value = ''
+}
+
+const sendInvite = async (taskId: string) => {
+  if (!shareEmail.value.trim()) return
+  shareLoading.value = true
+  shareError.value = ''
+  shareSuccess.value = ''
+  try {
+    await taskStore.inviteToTask(taskId, shareEmail.value.trim())
+    shareSuccess.value = 'Invite sent!'
+    shareEmail.value = ''
+  } catch (e: any) {
+    shareError.value = e.response?.data?.message || 'Failed to send invite.'
+  } finally {
+    shareLoading.value = false
+  }
+}
+
 // Inline per-date subtask adding
 const addingSubTaskForTaskId = ref<string | null>(null)
 const newSubTaskText = ref('')
@@ -403,7 +453,7 @@ const taskForm = reactive({
 const dayHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const year = computed(() => currentYear.value)
 const monthName = computed(() =>
-  new Date(currentYear.value, currentMonth.value).toLocaleString('default', { month: 'long' })
+  new Date(currentYear.value, currentMonth.value).toLocaleString('en-US', { month: 'long' })
 )
 
 const calendarDays = computed(() => {
