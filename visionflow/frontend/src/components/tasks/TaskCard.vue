@@ -26,6 +26,16 @@
         </p>
         <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
         <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
+        <div v-if="isShared(task)" class="flex items-center gap-1 mt-1 flex-wrap">
+          <template v-for="p in getSharedWith(task)" :key="p.username">
+            <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
+              class="w-5 h-5 rounded-full object-cover ring-1 ring-white" />
+            <span v-else
+              class="w-5 h-5 rounded-full bg-indigo-400 text-white text-[9px] font-bold flex items-center justify-center ring-1 ring-white"
+              :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
+            <span class="text-[10px] text-slate-400">{{ p.username }}</span>
+          </template>
+        </div>
       </div>
 
       <div class="flex gap-1 flex-shrink-0">
@@ -136,6 +146,7 @@ import { ref, computed } from 'vue'
 import { useTaskStore } from '../../stores/taskStore'
 import type { Task } from '../../types/Task'
 import { icon } from '../../utils/icons'
+import { useTaskSharing } from '../../composables/useTaskSharing'
 
 const props = defineProps<{ task: Task; date: string }>()
 const emit = defineEmits<{
@@ -144,6 +155,7 @@ const emit = defineEmits<{
 }>()
 
 const taskStore = useTaskStore()
+const { getSharedWith, isShared } = useTaskSharing()
 
 const isDone = computed(() => taskStore.isDateCompleted(props.task, props.date))
 
