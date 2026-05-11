@@ -4,9 +4,7 @@ import Task from '../models/Task'
 
 export const getGoals = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: maybe add category filter as query param later
     const goals = await Goal.find({ user: req.user?.id }).sort({ createdAt: -1 })
-    // console.log('fetched goals for user:', req.user?.id)
     res.json(goals)
   } catch (error) {
     res.status(500).json({ message: 'could not load goals', error })

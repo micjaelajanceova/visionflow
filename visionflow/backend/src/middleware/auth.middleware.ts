@@ -8,7 +8,6 @@ interface JwtPayload {
 
 export const protect = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization
-  // console.log('auth header received:', authHeader)
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({ message: 'no token, access denied' })

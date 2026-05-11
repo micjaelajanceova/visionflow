@@ -356,33 +356,11 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useGoalStore } from '../stores/goalStore'
 import { useTaskStore } from '../stores/taskStore'
-import { useAuthStore } from '../stores/authStore'
-import type { Task, TaskUser } from '../types/Task'
+import type { Task } from '../types/Task'
 import { icon } from '../utils/icons'
 
 const goalStore = useGoalStore()
 const taskStore = useTaskStore()
-const auth = useAuthStore()
-
-function getSharedParticipants(task: Task): { avatarUrl?: string; username: string }[] {
-  const currentUserId = auth.user?.id
-  const owner = task.user
-  const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
-
-  if (ownerId === currentUserId) {
-    return task.participants
-      .filter(p => p.accepted)
-      .map(p => {
-        const u = p.userId
-        if (typeof u === 'string') return { username: p.email }
-        return { avatarUrl: (u as TaskUser).avatarUrl, username: (u as TaskUser).username }
-      })
-  } else {
-    if (typeof owner === 'string') return []
-    const o = owner as TaskUser
-    return [{ avatarUrl: o.avatarUrl, username: o.username }]
-  }
-}
 
 const today = new Date()
 const currentMonth = ref(today.getMonth())
