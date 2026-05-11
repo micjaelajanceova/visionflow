@@ -56,15 +56,6 @@
                   @click.stop
                 >
                   <span class="truncate flex-1 min-w-0">{{ rangeChipLabel(task, day.date) }}</span>
-                  <template v-for="p in getSharedParticipants(task).slice(0, 1)" :key="p.username">
-                    <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
-                      class="w-3 h-3 rounded-full flex-shrink-0 object-cover ring-1 ring-white" />
-                    <span v-else
-                      class="w-3 h-3 rounded-full flex-shrink-0 bg-indigo-400 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white flex-shrink-0"
-                      :title="p.username">
-                      {{ p.username[0].toUpperCase() }}
-                    </span>
-                  </template>
                 </div>
                 <div v-if="taskStore.getTasksForDate(day.date).length > 2" class="text-xs text-slate-400">
                   +{{ taskStore.getTasksForDate(day.date).length - 2 }} more
@@ -122,18 +113,6 @@
                       </p>
                       <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
                       <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
-                      <div v-if="getSharedParticipants(task).length > 0" class="flex items-center gap-1 mt-1">
-                        <template v-for="p in getSharedParticipants(task)" :key="p.username">
-                          <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
-                            class="w-5 h-5 rounded-full object-cover ring-1 ring-white" />
-                          <span v-else
-                            class="w-5 h-5 rounded-full bg-indigo-400 text-white text-[9px] font-bold flex items-center justify-center ring-1 ring-white"
-                            :title="p.username">
-                            {{ p.username[0].toUpperCase() }}
-                          </span>
-                        </template>
-                        <span class="text-[10px] text-slate-400">{{ getSharedParticipants(task).map(p => p.username).join(', ') }}</span>
-                      </div>
                     </div>
                     <div class="flex gap-1 flex-shrink-0">
                       <button @click.stop="openEditTask(task, selectedDate)" class="text-slate-300 hover:text-blue-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />

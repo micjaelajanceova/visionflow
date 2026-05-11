@@ -10,22 +10,28 @@ interface User {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<User | null>(null)
+  const stored = localStorage.getItem('user')
+  const user = ref<User | null>(stored ? JSON.parse(stored) : null)
   const token = ref<string | null>(localStorage.getItem('token'))
 
   const isAuthenticated = computed(() => !!token.value)
 
+  const saveUser = (u: User) => {
+    user.value = u
+    localStorage.setItem('user', JSON.stringify(u))
+  }
+
   const login = async (email: string, password: string) => {
     const { data } = await client.post('/auth/login', { email, password })
     token.value = data.token
-    user.value = data.user
+    saveUser(data.user)
     localStorage.setItem('token', data.token)
   }
 
   const register = async (username: string, email: string, password: string) => {
     const { data } = await client.post('/auth/register', { username, email, password })
     token.value = data.token
-    user.value = data.user
+    saveUser(data.user)
     localStorage.setItem('token', data.token)
   }
 
@@ -33,12 +39,13 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
 
   const fetchMe = async () => {
     try {
       const { data } = await client.get('/auth/me')
-      user.value = data
+      saveUser(data)
     } catch {
       logout()
     }
@@ -46,7 +53,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const updateProfile = async (payload: { username?: string; avatarUrl?: string | null }) => {
     const { data } = await client.put('/auth/profile', payload)
-    if (user.value) user.value = { ...user.value, ...data }
+    if (user.value) saveUser({ ...user.value, ...data })
   }
 
   const updatePassword = async (currentPassword: string, newPassword: string) => {

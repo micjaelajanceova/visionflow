@@ -44,37 +44,14 @@
       </div>
     </div>
 
-    <!-- Accepted shared tasks -->
-    <div>
-      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Shared With Me</h2>
-
-      <div v-if="sharedTasks.length === 0" class="card text-center text-slate-400 text-sm py-8">
-        No accepted shared tasks yet
-      </div>
-
-      <div v-else class="space-y-3">
-        <div v-for="task in sharedTasks" :key="task._id" class="card flex items-center gap-3">
-          <div class="w-2 h-2 rounded-full flex-shrink-0" :class="task.completed ? 'bg-emerald-400' : 'bg-indigo-400'" />
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-slate-800" :class="task.completed ? 'line-through text-slate-400' : ''">
-              {{ task.title }}
-            </p>
-            <p v-if="task.dueDate" class="text-xs text-slate-400">{{ formatDate(task.dueDate) }}</p>
-          </div>
-          <span class="text-xs text-slate-400 bg-indigo-50 text-indigo-500 rounded-full px-2 py-0.5">shared</span>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
-import { useAuthStore } from '../stores/authStore'
 
 const taskStore = useTaskStore()
-const auth = useAuthStore()
 const loading = ref(true)
 const responding = ref<string | null>(null)
 
@@ -82,12 +59,6 @@ onMounted(async () => {
   await taskStore.fetchPendingInvites()
   loading.value = false
 })
-
-const sharedTasks = computed(() =>
-  taskStore.tasks.filter(t =>
-    t.participants?.some(p => p.userId === auth.user?.id && p.accepted)
-  )
-)
 
 const respond = async (taskId: string, accept: boolean) => {
   responding.value = taskId
