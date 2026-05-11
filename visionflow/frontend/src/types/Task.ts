@@ -24,8 +24,14 @@ export interface DateSubTasks {
   items: DateSubTaskItem[]
 }
 
+export interface TaskUser {
+  _id: string
+  username: string
+  avatarUrl?: string
+}
+
 export interface TaskParticipant {
-  userId: string
+  userId: string | TaskUser
   email: string
   accepted: boolean
 }
@@ -47,7 +53,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high'
   goalId?: string
   goal?: string
-  user: string
+  user: string | TaskUser
   subTasks: SubTask[]
   completedDates: string[]
   skippedDates: string[]

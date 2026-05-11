@@ -49,13 +49,22 @@
                 <div
                   v-for="task in taskStore.getTasksForDate(day.date).slice(0, 2)"
                   :key="task._id"
-                  class="leading-4 truncate cursor-grab active:cursor-grabbing"
+                  class="leading-4 flex items-center gap-0.5 cursor-grab active:cursor-grabbing min-w-0"
                   :class="rangeChipClass(task, day.date)"
                   draggable="true"
                   @dragstart.stop="startDrag(task, day.date, $event)"
                   @click.stop
                 >
-                  {{ rangeChipLabel(task, day.date) }}
+                  <span class="truncate flex-1 min-w-0">{{ rangeChipLabel(task, day.date) }}</span>
+                  <template v-for="p in getSharedParticipants(task).slice(0, 1)" :key="p.username">
+                    <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
+                      class="w-3 h-3 rounded-full flex-shrink-0 object-cover ring-1 ring-white" />
+                    <span v-else
+                      class="w-3 h-3 rounded-full flex-shrink-0 bg-indigo-400 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white flex-shrink-0"
+                      :title="p.username">
+                      {{ p.username[0].toUpperCase() }}
+                    </span>
+                  </template>
                 </div>
                 <div v-if="taskStore.getTasksForDate(day.date).length > 2" class="text-xs text-slate-400">
                   +{{ taskStore.getTasksForDate(day.date).length - 2 }} more
@@ -113,6 +122,18 @@
                       </p>
                       <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
                       <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
+                      <div v-if="getSharedParticipants(task).length > 0" class="flex items-center gap-1 mt-1">
+                        <template v-for="p in getSharedParticipants(task)" :key="p.username">
+                          <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
+                            class="w-5 h-5 rounded-full object-cover ring-1 ring-white" />
+                          <span v-else
+                            class="w-5 h-5 rounded-full bg-indigo-400 text-white text-[9px] font-bold flex items-center justify-center ring-1 ring-white"
+                            :title="p.username">
+                            {{ p.username[0].toUpperCase() }}
+                          </span>
+                        </template>
+                        <span class="text-[10px] text-slate-400">{{ getSharedParticipants(task).map(p => p.username).join(', ') }}</span>
+                      </div>
                     </div>
                     <div class="flex gap-1 flex-shrink-0">
                       <button @click.stop="openEditTask(task, selectedDate)" class="text-slate-300 hover:text-blue-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
@@ -356,11 +377,33 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useGoalStore } from '../stores/goalStore'
 import { useTaskStore } from '../stores/taskStore'
-import type { Task } from '../types/Task'
+import { useAuthStore } from '../stores/authStore'
+import type { Task, TaskUser } from '../types/Task'
 import { icon } from '../utils/icons'
 
 const goalStore = useGoalStore()
 const taskStore = useTaskStore()
+const auth = useAuthStore()
+
+function getSharedParticipants(task: Task): { avatarUrl?: string; username: string }[] {
+  const currentUserId = auth.user?.id
+  const owner = task.user
+  const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
+
+  if (ownerId === currentUserId) {
+    return task.participants
+      .filter(p => p.accepted)
+      .map(p => {
+        const u = p.userId
+        if (typeof u === 'string') return { username: p.email }
+        return { avatarUrl: (u as TaskUser).avatarUrl, username: (u as TaskUser).username }
+      })
+  } else {
+    if (typeof owner === 'string') return []
+    const o = owner as TaskUser
+    return [{ avatarUrl: o.avatarUrl, username: o.username }]
+  }
+}
 
 const today = new Date()
 const currentMonth = ref(today.getMonth())

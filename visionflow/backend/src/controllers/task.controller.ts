@@ -11,7 +11,10 @@ const participantFilter = (userId: string) => ({
 
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    const tasks = await Task.find(participantFilter(req.user!.id)).sort({ createdAt: -1 })
+    const tasks = await Task.find(participantFilter(req.user!.id))
+      .populate('user', 'username avatarUrl')
+      .populate('participants.userId', 'username avatarUrl')
+      .sort({ createdAt: -1 })
     res.json(tasks)
   } catch (error) {
     res.status(500).json({ message: 'Server error', error })
