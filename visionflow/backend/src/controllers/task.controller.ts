@@ -101,23 +101,13 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
       { path: 'participants.userId', select: 'username avatarUrl' },
     ]
 
-    if (isOwner) {
-      const task = await Task.findOneAndUpdate(
-        { _id: req.params.id, user: userId },
-        { $set: req.body },
-        { new: true, runValidators: true, populate }
-      )
-      if (!task) { res.status(404).json({ message: 'Task not found' }); return }
-      res.json(task)
-    } else {
-      const task = await Task.findOneAndUpdate(
-        { _id: req.params.id, participants: { $elemMatch: { userId, accepted: true } } },
-        { $set: { completed: req.body.completed } },
-        { new: true, populate }
-      )
-      if (!task) { res.status(404).json({ message: 'Task not found' }); return }
-      res.json(task)
-    }
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, ...participantFilter(userId) },
+      { $set: req.body },
+      { new: true, runValidators: true, populate }
+    )
+    if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+    res.json(task)
   } catch (error) {
     res.status(500).json({ message: 'could not update task', error })
   }
@@ -213,6 +203,21 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
     const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user?.id })
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     res.json({ message: 'Task deleted' })
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error })
+  }
+}
+
+export const leaveTask = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.id
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, participants: { $elemMatch: { userId, accepted: true } } },
+      { $pull: { participants: { userId } } },
+      { new: true }
+    )
+    if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+    res.json({ message: 'Left task' })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error })
   }

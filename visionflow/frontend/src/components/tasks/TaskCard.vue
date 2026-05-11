@@ -39,9 +39,11 @@
 
       <div class="flex gap-1 flex-shrink-0">
         <button @click.stop="emit('edit')" class="text-slate-300 hover:text-blue-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
-        <button @click.stop="toggleShare" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" title="Share task" v-html="icon('share', 'w-3.5 h-3.5')" />
-        <button v-if="!task.isRecurring" @click.stop="taskStore.deleteTask(task._id)"
-          class="text-slate-300 hover:text-red-400 text-sm bg-transparent border-0 cursor-pointer">&#10005;</button>
+        <button v-if="amIOwner" @click.stop="toggleShare" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" title="Share task" v-html="icon('share', 'w-3.5 h-3.5')" />
+        <button v-if="amIOwner && !task.isRecurring" @click.stop="taskStore.deleteTask(task._id)"
+          class="text-slate-300 hover:text-red-400 text-sm bg-transparent border-0 cursor-pointer" title="Delete">&#10005;</button>
+        <button v-if="!amIOwner" @click.stop="taskStore.leaveTask(task._id)"
+          class="text-slate-300 hover:text-red-400 text-xs bg-transparent border-0 cursor-pointer" title="Leave shared task">Leave</button>
       </div>
     </div>
 
@@ -143,6 +145,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useTaskStore } from '../../stores/taskStore'
+import { useAuthStore } from '../../stores/authStore'
 import type { Task } from '../../types/Task'
 import { icon } from '../../utils/icons'
 import { useTaskSharing } from '../../composables/useTaskSharing'
@@ -154,7 +157,14 @@ const emit = defineEmits<{
 }>()
 
 const taskStore = useTaskStore()
+const auth = useAuthStore()
 const { getSharedWith, isShared } = useTaskSharing()
+
+const amIOwner = computed(() => {
+  const myId = (auth.user as any)?.id || (auth.user as any)?._id
+  const ownerId = typeof props.task.user === 'string' ? props.task.user : (props.task.user as any)?._id
+  return myId === ownerId
+})
 
 const isDone = computed(() => taskStore.isDateCompleted(props.task, props.date))
 

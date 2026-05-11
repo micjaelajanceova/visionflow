@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getTasks, createTask, updateTask, deleteTask, completeTaskDate, skipTaskDate, toggleSubTaskDate, updateDateSubTasks, getPublicCompletionPhotos, getPendingInvites, inviteToTask, respondToInvite } from '../controllers/task.controller'
+import { getTasks, createTask, updateTask, deleteTask, leaveTask, completeTaskDate, skipTaskDate, toggleSubTaskDate, updateDateSubTasks, getPublicCompletionPhotos, getPendingInvites, inviteToTask, respondToInvite } from '../controllers/task.controller'
 import { protect } from '../middleware/auth.middleware'
 
 const router = Router()
@@ -329,5 +329,6 @@ router.post('/:id/date-subtasks', updateDateSubTasks)
  *         description: Task not found
  */
 router.delete('/:id', deleteTask)
+router.delete('/:id/leave', leaveTask)
 
 export default router
