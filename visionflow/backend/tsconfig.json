@@ -4,6 +4,9 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
 
+    "rootDir": "src", 
+    "outDir": "dist",
+
     "lib": ["ESNext"],
     "types": ["node"],
 
@@ -11,5 +14,6 @@
     "skipLibCheck": true,
 
     "esModuleInterop": true
-  }
+  },
+  "include": ["src"]
 }
