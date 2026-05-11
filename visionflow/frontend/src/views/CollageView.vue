@@ -40,15 +40,14 @@
         <div
           v-for="(goal, index) in goalsWithImages"
           :key="goal._id"
-          class="break-inside-avoid mb-4 group relative cursor-pointer"
+          class="break-inside-avoid mb-4 group relative cursor-pointer pt-3"
           :style="{ transform: `rotate(${rotations[index % rotations.length]}deg)`, transition: 'transform 0.2s ease' }"
           @mouseenter="(e) => ((e.currentTarget as HTMLElement).style.transform = 'rotate(0deg) scale(1.04)')"
           @mouseleave="(e) => ((e.currentTarget as HTMLElement).style.transform = `rotate(${rotations[index % rotations.length]}deg)`)"
           @click="router.push(`/goals/${goal._id}`)"
         >
           <!-- Pin -->
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full shadow-md border-2 border-white" :class="pinColors[index % pinColors.length]" />
-
+          <div class="absolute top-0.5 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full shadow-md border-2 border-white" :class="pinColors[index % pinColors.length]" />
           <!-- Photo card -->
           <div class="bg-white rounded-sm overflow-hidden" style="box-shadow: 2px 4px 16px rgba(0,0,0,0.18);">
             <img
