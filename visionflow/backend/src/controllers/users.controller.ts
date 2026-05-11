@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import User from '../models/User'
 import Task from '../models/Task'
+import Goal from '../models/Goal'
 import mongoose from 'mongoose'
 
 export const getUserPublicProfile = async (req: Request, res: Response): Promise<void> => {
@@ -32,7 +33,13 @@ export const getUserPublicProfile = async (req: Request, res: Response): Promise
     }
     posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-    res.json({ user: { id: user._id, username: user.username, avatarUrl: user.avatarUrl }, posts })
+    const goals = await Goal.find({ user: id, isDone: true, isDonePublic: true })
+
+    res.json({
+      user: { id: user._id, username: user.username, avatarUrl: user.avatarUrl },
+      posts,
+      goals,
+    })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error })
   }
