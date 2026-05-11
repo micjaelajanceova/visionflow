@@ -55,6 +55,7 @@
                   class="leading-4 flex items-center gap-0.5 cursor-grab active:cursor-grabbing min-w-0 text-xs rounded px-1"
                   :class="taskStore.isDateCompleted(task, day.date)
                     ? 'bg-emerald-100 text-emerald-700 line-through opacity-60'
+                    : isOverdue(task, day.date) ? 'bg-red-100 text-red-600'
                     : task.isRecurring ? 'bg-blue-100 text-blue-700' : 'bg-sky-100 text-sky-700'"
                   draggable="true"
                   @dragstart.stop="startDrag(task, day.date, $event)"
@@ -82,7 +83,7 @@
               v-for="(bar, bi) in getRangeBarsForWeek(week.days)"
               :key="bar.task._id + '-' + wi"
               class="absolute text-xs flex items-center px-1.5 overflow-hidden select-none cursor-pointer"
-              :class="bar.done ? 'bg-emerald-100 text-emerald-700 line-through opacity-60' : 'bg-indigo-200 text-indigo-800'"
+              :class="bar.done ? 'bg-emerald-100 text-emerald-700 line-through opacity-60' : isOverdue(bar.task, week.days[bar.startCol].date) ? 'bg-red-100 text-red-600' : 'bg-indigo-200 text-indigo-800'"
               :style="{
                 left: 'calc(' + (bar.startCol / 7 * 100) + '% + 2px)',
                 width: 'calc(' + (bar.span / 7 * 100) + '% - 4px)',
@@ -112,11 +113,37 @@
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-sky-200" /> Task</div>
           <div class="flex items-center gap-1.5"><div class="w-4 h-2 rounded-sm bg-indigo-200" /> Date range</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-emerald-100" /> Completed</div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-red-100" /> Overdue</div>
         </div>
       </div>
 
       <!-- Sidebar: selected day -->
-      <div>
+      <div class="space-y-3">
+        <!-- Overdue -->
+        <div v-if="overdueTasks.length > 0" class="card !p-0 overflow-hidden border-l-4 border-l-red-400">
+          <button
+            @click="overdueOpen = !overdueOpen"
+            class="w-full flex items-center justify-between px-4 py-3 bg-red-50 hover:bg-red-100 transition-all cursor-pointer border-0 text-left"
+          >
+            <span class="font-semibold text-red-700 text-sm flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-red-500" />
+              Overdue
+              <span class="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ overdueTasks.length }}</span>
+            </span>
+            <span class="text-red-400 text-xs">{{ overdueOpen ? '▲' : '▼' }}</span>
+          </button>
+          <div v-if="overdueOpen" class="divide-y divide-slate-50">
+            <div v-for="task in overdueTasks" :key="task._id"
+              class="flex items-center gap-2.5 px-4 py-2 hover:bg-red-50/50 transition-all cursor-pointer"
+              @click="selectedDate = taskDueStr(task)"
+            >
+              <div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+              <span class="text-sm text-slate-700 flex-1 truncate">{{ task.title }}</span>
+              <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task) }}d</span>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <h3 class="font-semibold text-slate-900 mb-3">
             {{ selectedDate ? formatSelectedDate(selectedDate) : 'Select a day' }}
@@ -361,6 +388,40 @@ function getRangeTaskCountForDay(date: string): number {
     date >= t.startDate!.split('T')[0] &&
     date <= t.endDate!.split('T')[0]
   ).length
+}
+
+const todayStr = toLocalDateStr(today)
+
+const overdueOpen = ref(true)
+
+const overdueTasks = computed(() =>
+  taskStore.tasks.filter(t => {
+    if (t.isRecurring || t.completed) return false
+    if (t.dueDate) return new Date(t.dueDate).toISOString().split('T')[0] < todayStr
+    if (t.endDate) return t.endDate.split('T')[0] < todayStr
+    return false
+  })
+)
+
+function daysOverdue(task: Task): number {
+  const dueStr = task.dueDate
+    ? new Date(task.dueDate).toISOString().split('T')[0]
+    : task.endDate!.split('T')[0]
+  return Math.floor((new Date(todayStr).getTime() - new Date(dueStr).getTime()) / 86400000)
+}
+
+function taskDueStr(task: Task): string {
+  if (task.dueDate) return new Date(task.dueDate).toISOString().split('T')[0]
+  if (task.endDate) return task.endDate.split('T')[0]
+  return todayStr
+}
+
+function isOverdue(task: Task, dateStr: string): boolean {
+  if (task.isRecurring) return false
+  if (taskStore.isDateCompleted(task, dateStr)) return false
+  if (task.dueDate) return new Date(task.dueDate).toISOString().split('T')[0] < todayStr
+  if (task.endDate) return task.endDate.split('T')[0] < todayStr
+  return false
 }
 
 function getDayDisplayInfo(date: string): { chipsLimit: number; moreCount: number } {

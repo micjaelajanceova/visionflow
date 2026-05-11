@@ -23,6 +23,7 @@
           <span v-if="task.time && !task.isAllDay" class="text-xs text-slate-400 ml-1">
             {{ task.time }}{{ task.endTime ? ' – ' + task.endTime : '' }}
           </span>
+          <span v-if="isTaskOverdue" class="ml-1.5 text-[10px] font-semibold text-red-500 bg-red-50 rounded px-1 py-0.5">overdue</span>
         </p>
         <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
         <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
@@ -167,6 +168,14 @@ const amIOwner = computed(() => {
 })
 
 const isDone = computed(() => taskStore.isDateCompleted(props.task, props.date))
+
+const todayStr = new Date().toISOString().split('T')[0]
+const isTaskOverdue = computed(() => {
+  if (props.task.isRecurring || isDone.value) return false
+  if (props.task.dueDate) return new Date(props.task.dueDate).toISOString().split('T')[0] < todayStr
+  if (props.task.endDate) return props.task.endDate.split('T')[0] < todayStr
+  return false
+})
 
 // Share
 const showShare = ref(false)

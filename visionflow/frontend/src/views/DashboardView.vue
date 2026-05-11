@@ -28,6 +28,26 @@
       </div>
     </div>
 
+    <!-- Overdue tasks -->
+    <div v-if="overdueTasks.length > 0" class="mb-6 card border-l-4 border-l-red-400 !p-0 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-3 bg-red-50 border-b border-red-100">
+        <h2 class="font-semibold text-red-700 flex items-center gap-2 text-sm">
+          <span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+          Overdue Tasks
+          <span class="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{{ overdueTasks.length }}</span>
+        </h2>
+        <router-link to="/calendar" class="text-xs text-red-500 hover:underline font-medium">View in calendar →</router-link>
+      </div>
+      <div class="divide-y divide-slate-50">
+        <div v-for="task in overdueTasks" :key="task._id"
+          class="flex items-center gap-3 px-5 py-2.5 hover:bg-red-50/50 transition-all">
+          <div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+          <span class="text-sm text-slate-700 flex-1">{{ task.title }}</span>
+          <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task) }}d overdue</span>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Goals preview -->
       <div class="lg:col-span-2">
@@ -156,6 +176,22 @@ const goalsWithImages = computed(() => goalStore.goals.filter(g => g.imageData))
 const tasksDoneToday = computed(() =>
   todayTasks.value.filter(t => taskStore.isDateCompleted(t, todayStr)).length
 )
+
+const overdueTasks = computed(() =>
+  taskStore.tasks.filter(t => {
+    if (t.isRecurring || t.completed) return false
+    if (t.dueDate) return new Date(t.dueDate).toISOString().split('T')[0] < todayStr
+    if (t.endDate) return t.endDate.split('T')[0] < todayStr
+    return false
+  })
+)
+
+function daysOverdue(task: { dueDate?: string; endDate?: string }): number {
+  const dueStr = task.dueDate
+    ? new Date(task.dueDate).toISOString().split('T')[0]
+    : task.endDate!.split('T')[0]
+  return Math.floor((new Date(todayStr).getTime() - new Date(dueStr).getTime()) / 86400000)
+}
 
 onMounted(async () => {
   await Promise.all([
