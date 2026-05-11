@@ -2,7 +2,7 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <div class="page-header">
       <h1 class="page-title">
-        <span class="text-blue-500 flex-shrink-0" v-html="icon('calendar', 'w-7 h-7')" />
+        <span class="text-indigo-500 flex-shrink-0" v-html="icon('calendar', 'w-7 h-7')" />
         Calendar
       </h1>
       <button @click="openAddTask" class="btn btn-primary">+ New task</button>
@@ -26,12 +26,12 @@
             <div
               v-for="day in week.days"
               :key="day.date"
-              class="p-1.5 border-r border-b border-slate-50 cursor-pointer hover:bg-blue-50/50 transition-all"
+              class="p-1.5 border-r border-b border-slate-50 cursor-pointer hover:bg-indigo-50/50 transition-all"
               :style="{ minHeight: (80 + getRangeBarsForWeek(week.days).length * 20) + 'px' }"
               :class="{
-                'bg-blue-50': day.isToday,
+                'bg-indigo-50': day.isToday,
                 'opacity-0 pointer-events-none': !day.day,
-                'bg-blue-100/40 ring-2 ring-inset ring-blue-400': dragOverDate === day.date,
+                'bg-indigo-100/40 ring-2 ring-inset ring-indigo-400': dragOverDate === day.date,
               }"
               @click="day.day && selectDay(day.date)"
               @dragover.prevent="day.day && (dragOverDate = day.date)"
@@ -39,7 +39,7 @@
               @drop.prevent="day.day && handleDrop(day.date)"
             >
               <div class="w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium mb-1"
-                :class="day.isToday ? 'bg-blue-600 text-white' : 'text-slate-700'">
+                :class="day.isToday ? 'bg-indigo-600 text-white' : 'text-slate-700'">
                 {{ day.day }}
               </div>
               <div class="flex flex-wrap gap-0.5 mb-0.5">
@@ -56,7 +56,7 @@
                   :class="taskStore.isDateCompleted(task, day.date)
                     ? 'bg-emerald-100 text-emerald-700 line-through opacity-60'
                     : isOverdue(task, day.date) ? 'bg-red-100 text-red-600'
-                    : task.isRecurring ? 'bg-blue-100 text-blue-700' : 'bg-sky-100 text-sky-700'"
+                    : task.isRecurring ? 'bg-indigo-100 text-indigo-700' : 'bg-sky-100 text-sky-700'"
                   draggable="true"
                   @dragstart.stop="startDrag(task, day.date, $event)"
                   @click.stop
@@ -108,8 +108,8 @@
         </div>
 
         <div class="flex flex-wrap gap-4 mt-4 text-xs text-slate-500">
-          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-blue-600" /> Today</div>
-          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-blue-200" /> Goal task</div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-600" /> Today</div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-200" /> Goal task</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-sky-200" /> Task</div>
           <div class="flex items-center gap-1.5"><div class="w-4 h-2 rounded-sm bg-indigo-200" /> Date range</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-emerald-100" /> Completed</div>
@@ -172,7 +172,7 @@
               <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Goal Deadlines</p>
               <div class="space-y-2">
                 <router-link v-for="goal in dayGoals" :key="goal._id" :to="`/goals/${goal._id}`"
-                  class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all block">
+                  class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all block">
                   <div class="w-2 h-2 rounded-full flex-shrink-0" :class="goalDot(goal.category)" />
                   <span class="text-sm text-slate-700 font-medium">{{ goal.title }}</span>
                   <span class="text-xs text-slate-400 ml-auto">{{ goal.category }}</span>
@@ -329,7 +329,7 @@ const formatSelectedDate = (date: string) => {
 }
 
 const goalDot = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-blue-500', Finance: 'bg-yellow-500',
+  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
   Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
 }[cat] || 'bg-slate-400')
 

@@ -1,11 +1,11 @@
 <template>
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
-    <router-link to="/goals" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline mb-6">
+    <router-link to="/goals" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline mb-6">
       ← Back to Goals
     </router-link>
 
     <div v-if="!goal" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
     </div>
 
     <div v-else>
@@ -13,7 +13,7 @@
       <div class="card mb-6">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div class="flex flex-wrap gap-2">
-            <span class="badge bg-blue-100 text-blue-700">{{ goal.category }}</span>
+            <span class="badge bg-indigo-100 text-indigo-700">{{ goal.category }}</span>
             <span v-if="goal.isPublic" class="badge bg-emerald-100 text-emerald-700 flex items-center gap-1">
               <span v-html="icon('explore', 'w-3 h-3')" />Public
             </span>
@@ -52,7 +52,7 @@
       <div class="card">
         <div class="flex items-center justify-between mb-4">
           <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-            <span class="text-blue-500" v-html="icon('clipboard', 'w-5 h-5')" />
+            <span class="text-indigo-500" v-html="icon('clipboard', 'w-5 h-5')" />
             Goal Tasks
           </h2>
           <button @click="showTaskForm = true" class="btn btn-primary text-xs py-1.5 px-3">+ Add Task</button>
@@ -74,7 +74,7 @@
                   <span
                     v-for="day in task.recurringDays"
                     :key="day"
-                    class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium"
+                    class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium"
                   >{{ dayNames[day] }}</span>
                   <span v-if="!task.isAllDay && task.time" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">⏰ {{ task.time }}</span>
                 </div>
@@ -90,7 +90,7 @@
                 <span>{{ taskProgress(task) }}%</span>
               </div>
               <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-blue-500 rounded-full transition-all" :style="{ width: taskProgress(task) + '%' }" />
+                <div class="h-full bg-indigo-500 rounded-full transition-all" :style="{ width: taskProgress(task) + '%' }" />
               </div>
             </div>
           </div>
@@ -127,8 +127,8 @@
                 @click="toggleDay(i)"
                 class="px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer"
                 :class="taskForm.recurringDays.includes(i)
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'"
+                  ? 'bg-indigo-600 border-indigo-600 text-white'
+                  : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
               >{{ name }}</button>
             </div>
           </div>
@@ -140,13 +140,13 @@
                 type="button"
                 @click="taskForm.isAllDay = true"
                 class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
-                :class="taskForm.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'"
+                :class="taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
               >All day</button>
               <button
                 type="button"
                 @click="taskForm.isAllDay = false"
                 class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
-                :class="!taskForm.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'"
+                :class="!taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
               >Specific time</button>
             </div>
             <input v-if="!taskForm.isAllDay" v-model="taskForm.time" type="time" class="input mt-2" />
@@ -167,14 +167,14 @@
       <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <span class="text-blue-500" v-html="icon('trophy', 'w-5 h-5')" />Goal Completed!
+            <span class="text-indigo-500" v-html="icon('trophy', 'w-5 h-5')" />Goal Completed!
           </h2>
           <button @click="showDoneModal = false" class="text-slate-400 hover:text-slate-600 text-2xl bg-transparent border-0 cursor-pointer">×</button>
         </div>
         <p class="text-sm text-slate-500 mb-4">Celebrate your achievement! Optionally add a photo and share with the community.</p>
 
         <div
-          class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition-all mb-4"
+          class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 transition-all mb-4"
           @click="donePhotoInput?.click()"
         >
           <div v-if="donePhotoPreview">
@@ -190,7 +190,7 @@
         <input ref="donePhotoInput" type="file" accept="image/*" capture="environment" class="hidden" @change="handleDonePhoto" />
 
         <label class="flex items-center gap-3 cursor-pointer mb-4">
-          <input v-model="donePublic" type="checkbox" class="w-4 h-4 accent-blue-600" />
+          <input v-model="donePublic" type="checkbox" class="w-4 h-4 accent-indigo-600" />
           <span class="text-sm text-slate-700">Share publicly on Explore</span>
         </label>
 

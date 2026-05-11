@@ -7,13 +7,13 @@
         <div class="flex items-center gap-3">
           <div
             class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer"
-            :class="step === 1 ? 'bg-blue-600 text-white' : 'bg-emerald-500 text-white'"
+            :class="step === 1 ? 'bg-indigo-600 text-white' : 'bg-emerald-500 text-white'"
             @click="step = 1"
           >{{ step === 1 ? '1' : '✓' }}</div>
-          <div class="w-8 h-0.5" :class="step === 2 ? 'bg-blue-600' : 'bg-slate-200'" />
+          <div class="w-8 h-0.5" :class="step === 2 ? 'bg-indigo-600' : 'bg-slate-200'" />
           <div
             class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-            :class="step === 2 ? 'bg-blue-600 text-white' : (editingGoal ? 'bg-slate-200 text-slate-500 cursor-pointer hover:bg-blue-100' : 'bg-slate-200 text-slate-400')"
+            :class="step === 2 ? 'bg-indigo-600 text-white' : (editingGoal ? 'bg-slate-200 text-slate-500 cursor-pointer hover:bg-indigo-100' : 'bg-slate-200 text-slate-400')"
             @click="editingGoal && goToStep2()"
           >2</div>
           <span class="text-sm text-slate-500 ml-1">{{ step === 1 ? 'Goal details' : 'Add a task' }}</span>
@@ -50,7 +50,7 @@
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Vision board image</label>
           <div
-            class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition-all"
+            class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 transition-all"
             @click="imageInput?.click()"
             @dragover.prevent
             @drop.prevent="handleDrop"
@@ -89,7 +89,7 @@
 
       <!-- Step 2: Add first task -->
       <div v-if="step === 2" class="p-6 space-y-4">
-        <button @click="step = 1" class="text-xs text-slate-400 hover:text-blue-600 bg-transparent border-0 cursor-pointer p-0 mb-1">← Back to goal details</button>
+        <button @click="step = 1" class="text-xs text-slate-400 hover:text-indigo-600 bg-transparent border-0 cursor-pointer p-0 mb-1">← Back to goal details</button>
         <p class="text-sm text-slate-500">Add a recurring task to your goal. You can add more tasks later from the goal page.</p>
 
         <div>
@@ -112,8 +112,8 @@
               @click="toggleDay(i)"
               class="px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer"
               :class="taskForm.recurringDays.includes(i)
-                ? 'bg-blue-600 border-blue-600 text-white'
-                : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'"
+                ? 'bg-indigo-600 border-indigo-600 text-white'
+                : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
             >{{ name }}</button>
           </div>
         </div>
@@ -122,9 +122,9 @@
           <label class="block text-sm font-medium text-slate-700 mb-2">Timing</label>
           <div class="flex gap-2">
             <button type="button" @click="taskForm.isAllDay = true" class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
-              :class="taskForm.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">All day</button>
+              :class="taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">All day</button>
             <button type="button" @click="taskForm.isAllDay = false" class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
-              :class="!taskForm.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">Specific time</button>
+              :class="!taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">Specific time</button>
           </div>
           <input v-if="!taskForm.isAllDay" v-model="taskForm.time" type="time" class="input mt-2" />
         </div>

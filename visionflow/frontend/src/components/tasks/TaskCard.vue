@@ -26,7 +26,7 @@
           <span v-if="isTaskOverdue" class="ml-1.5 text-[10px] font-semibold text-red-500 bg-red-50 rounded px-1 py-0.5">overdue</span>
         </p>
         <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
-        <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
+        <span v-if="task.isRecurring" class="text-xs text-indigo-400">&#8635; recurring</span>
         <div v-if="isShared(task)" class="flex items-center gap-0.5 mt-1">
           <template v-for="p in getSharedWith(task)" :key="p.username">
             <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
@@ -39,7 +39,7 @@
       </div>
 
       <div class="flex gap-1 flex-shrink-0">
-        <button @click.stop="emit('edit')" class="text-slate-300 hover:text-blue-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
+        <button @click.stop="emit('edit')" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
         <button v-if="amIOwner" @click.stop="toggleShare" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" title="Share task" v-html="icon('share', 'w-3.5 h-3.5')" />
         <button v-if="amIOwner && !task.isRecurring" @click.stop="taskStore.deleteTask(task._id)"
           class="text-slate-300 hover:text-red-400 text-sm bg-transparent border-0 cursor-pointer" title="Delete">&#10005;</button>
@@ -75,7 +75,7 @@
           class="flex items-center gap-2 group/item">
           <input type="checkbox" :checked="item.completed"
             @change="taskStore.toggleDateSubTaskItem(task._id, date, si)"
-            class="w-3.5 h-3.5 accent-blue-600 flex-shrink-0" />
+            class="w-3.5 h-3.5 accent-indigo-600 flex-shrink-0" />
           <span class="text-xs flex-1" :class="item.completed ? 'line-through text-slate-400' : 'text-slate-700'">
             {{ item.title }}
           </span>
@@ -94,11 +94,11 @@
           class="input py-1 text-xs flex-1"
           autofocus
         />
-        <button @click="confirmAddSubTask" class="text-blue-600 bg-transparent border-0 cursor-pointer text-xs font-medium">✓</button>
+        <button @click="confirmAddSubTask" class="text-indigo-600 bg-transparent border-0 cursor-pointer text-xs font-medium">✓</button>
         <button @click="cancelAddSubTask" class="text-slate-400 bg-transparent border-0 cursor-pointer text-xs">✕</button>
       </div>
       <button v-else @click="addingSubTask = true"
-        class="text-xs text-blue-500 hover:text-blue-700 bg-transparent border-0 cursor-pointer p-0 mt-0.5">
+        class="text-xs text-indigo-500 hover:text-indigo-700 bg-transparent border-0 cursor-pointer p-0 mt-0.5">
         + Add item for this day
       </button>
     </div>
@@ -110,7 +110,7 @@
         <label v-for="(sub, si) in task.subTasks" :key="si" class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" :checked="sub.completed"
             @change="taskStore.toggleSubTask(task._id, si)"
-            class="w-3.5 h-3.5 accent-blue-600" />
+            class="w-3.5 h-3.5 accent-indigo-600" />
           <span class="text-xs" :class="sub.completed ? 'line-through text-slate-400' : 'text-slate-700'">
             {{ sub.title }}
           </span>
@@ -121,7 +121,7 @@
     <!-- Photo upload prompt -->
     <div v-if="pendingPhoto" class="px-2.5 pb-2.5 border-t border-slate-100 pt-2">
       <p class="text-xs font-medium text-slate-600 mb-2">Add a photo? (optional)</p>
-      <div class="border border-dashed border-slate-200 rounded-lg p-2 text-center cursor-pointer hover:border-blue-400 mb-2"
+      <div class="border border-dashed border-slate-200 rounded-lg p-2 text-center cursor-pointer hover:border-indigo-400 mb-2"
         @click="triggerPhotoInput">
         <img v-if="photoPreview" :src="photoPreview" class="max-h-16 mx-auto rounded object-cover" style="max-width:100%;" />
         <span v-else class="flex flex-col items-center gap-1 text-slate-400">
@@ -132,7 +132,7 @@
       <input :id="'photo-' + task._id" type="file" accept="image/*" capture="environment"
         class="hidden" @change="handlePhotoUpload" />
       <label class="flex items-center gap-2 text-xs cursor-pointer mb-2">
-        <input v-model="photoPublic" type="checkbox" class="accent-blue-600" />
+        <input v-model="photoPublic" type="checkbox" class="accent-indigo-600" />
         Share publicly on Explore
       </label>
       <div class="flex gap-2">

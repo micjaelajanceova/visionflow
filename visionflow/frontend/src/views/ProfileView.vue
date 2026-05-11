@@ -1,5 +1,6 @@
 <template>
-  <div class="max-w-2xl mx-auto px-4 sm:px-0 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-0 py-8">
+    <div class="border border-indigo-200 rounded-xl p-6 bg-white shadow">
     <div class="mb-8">
       <h1 class="page-title">
         <span class="text-indigo-500 flex-shrink-0" v-html="personIcon" />
@@ -9,7 +10,7 @@
     </div>
 
     <!-- Avatar -->
-    <div class="card mb-5">
+    <div class="card mb-5 border-indigo-200">
       <h2 class="text-base font-semibold text-slate-800 mb-4">Profile Picture</h2>
       <div class="flex items-center gap-6">
         <div
@@ -48,7 +49,7 @@
     </div>
 
     <!-- Username -->
-    <div class="card mb-5">
+    <div class="card mb-5 border-indigo-200">
       <h2 class="text-base font-semibold text-slate-800 mb-4">Username</h2>
       <form @submit.prevent="saveUsername" class="space-y-4">
         <div>
@@ -64,7 +65,7 @@
     </div>
 
     <!-- Password -->
-    <div class="card">
+    <div class="card border-indigo-200">
       <h2 class="text-base font-semibold text-slate-800 mb-4">Change Password</h2>
       <form @submit.prevent="savePassword" class="space-y-4">
         <div>
@@ -85,6 +86,7 @@
           {{ passwordLoading ? 'Updating…' : 'Update password' }}
         </button>
       </form>
+    </div>
     </div>
   </div>
 </template>

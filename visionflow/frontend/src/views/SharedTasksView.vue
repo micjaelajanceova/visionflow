@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto px-4 sm:px-0 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <div class="mb-8">
       <h1 class="page-title">
         <span class="text-indigo-500 flex-shrink-0" v-html="shareIcon" />

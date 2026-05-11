@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 px-4">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
       <div class="text-center mb-8">
         <div class="flex justify-center mb-3">
@@ -50,7 +50,7 @@
 
       <p class="text-center text-sm text-slate-500 mt-6">
         Already have an account?
-        <router-link to="/login" class="text-blue-600 font-medium hover:underline">Sign in</router-link>
+        <router-link to="/login" class="text-indigo-600 font-medium hover:underline">Sign in</router-link>
       </p>
     </div>
   </div>

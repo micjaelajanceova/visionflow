@@ -7,7 +7,7 @@
     class="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md rounded-xl p-2.5 border border-slate-100 cursor-pointer"
     @click="menuOpen = !menuOpen"
   >
-    <span class="text-blue-600 text-lg font-bold">{{ menuOpen ? '✕' : '☰' }}</span>
+    <span class="text-indigo-600 text-lg font-bold">{{ menuOpen ? '✕' : '☰' }}</span>
   </button>
 
   <!-- Sidebar -->
@@ -17,7 +17,7 @@
   >
     <!-- Logo -->
     <div class="px-6 py-6 border-b border-slate-100">
-      <router-link to="/dashboard" class="flex items-center gap-2.5 font-bold text-xl text-blue-600" @click="menuOpen = false">
+      <router-link to="/dashboard" class="flex items-center gap-2.5 font-bold text-xl text-indigo-600" @click="menuOpen = false">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="w-8 h-8 flex-shrink-0">
           <defs>
             <linearGradient id="vf-side-bg" x1="0" y1="0" x2="1" y2="1">
@@ -42,20 +42,20 @@
         :key="link.to"
         :to="link.to"
         @click="menuOpen = false"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
-        active-class="text-blue-600 bg-blue-50 font-semibold"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+        active-class="text-indigo-600 bg-indigo-50 font-semibold"
       >
-        <span class="w-5 h-5 flex-shrink-0 text-blue-500" v-html="link.icon" />
+        <span class="w-5 h-5 flex-shrink-0 text-indigo-500" v-html="link.icon" />
         <span>{{ link.label }}</span>
       </router-link>
 
       <router-link
         to="/shared"
         @click="menuOpen = false"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
-        active-class="text-blue-600 bg-blue-50 font-semibold"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+        active-class="text-indigo-600 bg-indigo-50 font-semibold"
       >
-        <span class="w-5 h-5 flex-shrink-0 text-blue-500" v-html="shareNavIcon" />
+        <span class="w-5 h-5 flex-shrink-0 text-indigo-500" v-html="shareNavIcon" />
         <span class="flex-1">Shared Tasks</span>
         <span v-if="pendingCount > 0" class="text-xs font-bold bg-indigo-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
           {{ pendingCount }}

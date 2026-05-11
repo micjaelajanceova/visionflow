@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">
-          <span class="text-blue-500 flex-shrink-0" v-html="icon('goals', 'w-7 h-7')" />
+          <span class="text-indigo-500 flex-shrink-0" v-html="icon('goals', 'w-7 h-7')" />
           My Goals
         </h1>
         <p class="text-slate-500 text-sm mt-1">{{ goalStore.goals.length }} goal{{ goalStore.goals.length !== 1 ? 's' : '' }} total</p>
@@ -23,12 +23,12 @@
     </div>
 
     <div v-if="goalStore.loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
     </div>
 
     <div v-else-if="filteredGoals.length === 0" class="text-center py-20">
       <div class="flex justify-center mb-4">
-        <span class="text-blue-200" v-html="icon('goals', 'w-16 h-16')" />
+        <span class="text-indigo-200" v-html="icon('goals', 'w-16 h-16')" />
       </div>
       <h3 class="text-lg font-semibold text-slate-700 mb-2">No goals yet</h3>
       <p class="text-slate-400 mb-6">Start by creating your first goal</p>

@@ -1,14 +1,14 @@
 <template>
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <h1 class="page-title mb-6">
-      <span class="text-blue-500 flex-shrink-0" v-html="icon('progress', 'w-7 h-7')" />
+      <span class="text-indigo-500 flex-shrink-0" v-html="icon('progress', 'w-7 h-7')" />
       Progress
     </h1>
 
     <!-- Stats -->
     <div class="grid grid-cols-2 gap-4 mb-8 max-w-sm">
       <div class="card text-center">
-        <div class="text-3xl font-bold text-blue-600">{{ goalStore.goals.length }}</div>
+        <div class="text-3xl font-bold text-indigo-600">{{ goalStore.goals.length }}</div>
         <div class="text-sm text-slate-500 mt-1">Total Goals</div>
       </div>
       <div class="card text-center">
@@ -29,7 +29,7 @@
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2 min-w-0">
               <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" :class="catDot(goal.category)" />
-              <router-link :to="`/goals/${goal._id}`" class="text-sm font-semibold text-slate-800 hover:text-blue-600 truncate">
+              <router-link :to="`/goals/${goal._id}`" class="text-sm font-semibold text-slate-800 hover:text-indigo-600 truncate">
                 {{ goal.title }}
               </router-link>
               <span v-if="goal.isDone" class="text-emerald-500 flex-shrink-0" v-html="icon('checkCircle', 'w-3.5 h-3.5')" />
@@ -61,7 +61,7 @@
     <div class="card mb-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-          <span class="text-blue-500" v-html="icon('trophy', 'w-5 h-5')" />
+          <span class="text-indigo-500" v-html="icon('trophy', 'w-5 h-5')" />
           Completion Photos
         </h2>
         <span class="text-xs text-slate-400">{{ donePhotos.length }} photo{{ donePhotos.length !== 1 ? 's' : '' }}</span>
@@ -92,7 +92,7 @@
     <div class="card">
       <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-          <span class="text-blue-500" v-html="icon('camera', 'w-5 h-5')" />
+          <span class="text-indigo-500" v-html="icon('camera', 'w-5 h-5')" />
           Task Progress Photos
         </h2>
         <span class="text-xs text-slate-400">{{ taskPhotos.length }} photo{{ taskPhotos.length !== 1 ? 's' : '' }}</span>
@@ -170,14 +170,14 @@ const goalTaskStats = (goal: Goal) => {
 }
 
 const catDot = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-blue-500', Finance: 'bg-yellow-500',
+  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
   Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
 }[cat] || 'bg-slate-400')
 
 const catBar = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-blue-500', Finance: 'bg-yellow-500',
+  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
   Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
-}[cat] || 'bg-blue-500')
+}[cat] || 'bg-indigo-500')
 
 const formatDate = (date: string) =>
   new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })

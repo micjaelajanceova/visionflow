@@ -43,12 +43,12 @@ defineEmits<{ edit: [goal: Goal]; delete: [id: string] }>()
 const formatDate = (date: string) => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
 const categoryColor = computed(() => ({
-  Health: 'bg-emerald-400', Career: 'bg-blue-400', Finance: 'bg-yellow-400',
+  Health: 'bg-emerald-400', Career: 'bg-indigo-400', Finance: 'bg-yellow-400',
   Education: 'bg-purple-400', Personal: 'bg-pink-400', Other: 'bg-slate-300',
 }[props.goal.category] || 'bg-slate-300'))
 
 const categoryBadge = computed(() => ({
-  Health: 'bg-emerald-100 text-emerald-700', Career: 'bg-blue-100 text-blue-700',
+  Health: 'bg-emerald-100 text-emerald-700', Career: 'bg-indigo-100 text-indigo-700',
   Finance: 'bg-yellow-100 text-yellow-700', Education: 'bg-purple-100 text-purple-700',
   Personal: 'bg-pink-100 text-pink-700', Other: 'bg-slate-100 text-slate-600',
 }[props.goal.category] || 'bg-slate-100 text-slate-600'))

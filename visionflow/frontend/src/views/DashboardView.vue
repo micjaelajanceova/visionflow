@@ -2,8 +2,13 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-slate-900 flex items-center gap-3">
-        <span class="text-blue-500 flex-shrink-0" v-html="icon('hand', 'w-8 h-8')" />
-        Welcome back, <span class="text-blue-600">{{ auth.user?.username }}</span>
+        <div class="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-indigo-100 flex items-center justify-center ring-2 ring-indigo-200">
+          <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+          <span v-else class="text-base font-bold text-indigo-500 select-none">
+            {{ auth.user?.username?.[0]?.toUpperCase() }}
+          </span>
+        </div>
+        Welcome back, <span class="text-indigo-600">{{ auth.user?.username }}</span>
       </h1>
       <p class="text-slate-500 mt-1">Here's what's going on with your goals today.</p>
     </div>
@@ -11,7 +16,7 @@
     <!-- Stats -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
       <div class="card text-center">
-        <div class="text-3xl font-bold text-blue-600">{{ goalStore.goals.length }}</div>
+        <div class="text-3xl font-bold text-indigo-600">{{ goalStore.goals.length }}</div>
         <div class="text-sm text-slate-500 mt-1">Active Goals</div>
       </div>
       <div class="card text-center">
@@ -19,7 +24,7 @@
         <div class="text-sm text-slate-500 mt-1">Completed Goals</div>
       </div>
       <div class="card text-center">
-        <div class="text-3xl font-bold text-blue-500">{{ todayTasks.length }}</div>
+        <div class="text-3xl font-bold text-indigo-500">{{ todayTasks.length }}</div>
         <div class="text-sm text-slate-500 mt-1">Tasks Today</div>
       </div>
       <div class="card text-center">
@@ -53,14 +58,14 @@
       <div class="lg:col-span-2">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-            <span class="text-blue-500" v-html="icon('goals', 'w-5 h-5')" />
+            <span class="text-indigo-500" v-html="icon('goals', 'w-5 h-5')" />
             Recent Goals
           </h2>
-          <router-link to="/goals" class="text-sm text-blue-600 hover:underline">See all →</router-link>
+          <router-link to="/goals" class="text-sm text-indigo-600 hover:underline">See all →</router-link>
         </div>
         <div v-if="goalStore.goals.length === 0" class="card text-center py-10">
           <div class="flex justify-center mb-3">
-            <span class="text-blue-300" v-html="icon('goals', 'w-14 h-14')" />
+            <span class="text-indigo-300" v-html="icon('goals', 'w-14 h-14')" />
           </div>
           <p class="text-slate-500 mb-4">No goals yet — start your journey!</p>
           <router-link to="/goals" class="btn btn-primary">Create your first goal</router-link>
@@ -82,10 +87,10 @@
         <div class="card">
           <div class="flex items-center justify-between mb-3">
             <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-              <span class="text-blue-500" v-html="icon('checkCircle', 'w-5 h-5')" />
+              <span class="text-indigo-500" v-html="icon('checkCircle', 'w-5 h-5')" />
               Today's Tasks
             </h2>
-            <router-link to="/calendar" class="text-xs text-blue-600 hover:underline">Calendar →</router-link>
+            <router-link to="/calendar" class="text-xs text-indigo-600 hover:underline">Calendar →</router-link>
           </div>
           <div v-if="todayTasks.length === 0" class="text-sm text-slate-400 text-center py-3">
             Nothing due today
@@ -103,7 +108,7 @@
               <span class="text-sm flex-1" :class="taskStore.isDateCompleted(task, todayStr) ? 'line-through text-slate-400' : 'text-slate-700'">
                 {{ task.title }}
               </span>
-              <span v-if="task.isRecurring" class="text-blue-400 flex-shrink-0" v-html="icon('calendar', 'w-3.5 h-3.5')" />
+              <span v-if="task.isRecurring" class="text-indigo-400 flex-shrink-0" v-html="icon('calendar', 'w-3.5 h-3.5')" />
             </div>
           </div>
         </div>
@@ -112,10 +117,10 @@
         <div class="card">
           <div class="flex items-center justify-between mb-3">
             <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-              <span class="text-blue-500" v-html="icon('photo', 'w-5 h-5')" />
+              <span class="text-indigo-500" v-html="icon('photo', 'w-5 h-5')" />
               Vision Board
             </h2>
-            <router-link to="/collage" class="text-xs text-blue-600 hover:underline">View all →</router-link>
+            <router-link to="/collage" class="text-xs text-indigo-600 hover:underline">View all →</router-link>
           </div>
           <div v-if="goalsWithImages.length === 0" class="text-sm text-slate-400 text-center py-3">
             Add images to goals to fill your board
@@ -134,21 +139,21 @@
         <!-- Quick links -->
         <div class="card">
           <h2 class="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-            <span class="text-blue-500" v-html="icon('bolt', 'w-5 h-5')" />
+            <span class="text-indigo-500" v-html="icon('bolt', 'w-5 h-5')" />
             Quick Actions
           </h2>
           <div class="space-y-1">
-            <router-link to="/goals" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-blue-50 transition-all group">
-              <span class="text-blue-400 group-hover:text-blue-600 transition-colors" v-html="icon('goals', 'w-5 h-5')" />
-              <span class="text-sm font-medium text-slate-700 group-hover:text-blue-600">Create a new goal</span>
+            <router-link to="/goals" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-indigo-50 transition-all group">
+              <span class="text-indigo-400 group-hover:text-indigo-600 transition-colors" v-html="icon('goals', 'w-5 h-5')" />
+              <span class="text-sm font-medium text-slate-700 group-hover:text-indigo-600">Create a new goal</span>
             </router-link>
-            <router-link to="/calendar" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-blue-50 transition-all group">
-              <span class="text-blue-400 group-hover:text-blue-600 transition-colors" v-html="icon('calendar', 'w-5 h-5')" />
-              <span class="text-sm font-medium text-slate-700 group-hover:text-blue-600">Add a daily task</span>
+            <router-link to="/calendar" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-indigo-50 transition-all group">
+              <span class="text-indigo-400 group-hover:text-indigo-600 transition-colors" v-html="icon('calendar', 'w-5 h-5')" />
+              <span class="text-sm font-medium text-slate-700 group-hover:text-indigo-600">Add a daily task</span>
             </router-link>
-            <router-link to="/explore" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-blue-50 transition-all group">
-              <span class="text-blue-400 group-hover:text-blue-600 transition-colors" v-html="icon('explore', 'w-5 h-5')" />
-              <span class="text-sm font-medium text-slate-700 group-hover:text-blue-600">Explore community</span>
+            <router-link to="/explore" class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-indigo-50 transition-all group">
+              <span class="text-indigo-400 group-hover:text-indigo-600 transition-colors" v-html="icon('explore', 'w-5 h-5')" />
+              <span class="text-sm font-medium text-slate-700 group-hover:text-indigo-600">Explore community</span>
             </router-link>
           </div>
         </div>

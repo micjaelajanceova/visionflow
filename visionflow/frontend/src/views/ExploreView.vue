@@ -2,19 +2,19 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <div class="mb-6">
       <h1 class="page-title">
-        <span class="text-blue-500 flex-shrink-0" v-html="icon('explore', 'w-7 h-7')" />
+        <span class="text-indigo-500 flex-shrink-0" v-html="icon('explore', 'w-7 h-7')" />
         Explore
       </h1>
       <p class="text-slate-500 mt-1">Goals and progress shared by the community</p>
     </div>
 
     <div v-if="loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
     </div>
 
     <div v-else-if="allItems.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
-        <span class="text-blue-200" v-html="icon('trophy', 'w-20 h-20')" />
+        <span class="text-indigo-200" v-html="icon('trophy', 'w-20 h-20')" />
       </div>
       <h3 class="text-xl font-semibold text-slate-700 mb-2">Nothing shared yet</h3>
       <p class="text-slate-400">Complete goals or tasks and share them publicly to appear here!</p>
@@ -84,7 +84,7 @@
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
             <div class="absolute bottom-0 left-0 right-0 p-3">
-              <span class="inline-block text-xs font-semibold text-white bg-blue-500/90 px-2 py-0.5 rounded-full mb-1">
+              <span class="inline-block text-xs font-semibold text-white bg-indigo-500/90 px-2 py-0.5 rounded-full mb-1">
                 📈 {{ photo.progressPercent }}%
               </span>
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ photo.taskTitle }}</p>
@@ -123,7 +123,7 @@ const formatDate = (date: string) =>
 
 const catGradient = (cat: string) => ({
   Health: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
-  Career: 'bg-gradient-to-br from-blue-400 to-blue-600',
+  Career: 'bg-gradient-to-br from-indigo-400 to-indigo-600',
   Finance: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
   Education: 'bg-gradient-to-br from-purple-400 to-purple-600',
   Personal: 'bg-gradient-to-br from-pink-400 to-pink-600',

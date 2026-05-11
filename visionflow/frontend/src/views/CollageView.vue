@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">
-          <span class="text-blue-500 flex-shrink-0" v-html="icon('board', 'w-7 h-7')" />
+          <span class="text-indigo-500 flex-shrink-0" v-html="icon('board', 'w-7 h-7')" />
           Vision Board
         </h1>
         <p class="text-slate-500 text-sm mt-1">Your dreams, visualized</p>
@@ -12,12 +12,12 @@
     </div>
 
     <div v-if="goalStore.loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
     </div>
 
     <div v-else-if="goalStore.goals.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
-        <span class="text-blue-200" v-html="icon('board', 'w-20 h-20')" />
+        <span class="text-indigo-200" v-html="icon('board', 'w-20 h-20')" />
       </div>
       <h3 class="text-xl font-semibold text-slate-700 mb-2">No goals yet</h3>
       <p class="text-slate-400 mb-6">Create goals first, then add images to them</p>
@@ -26,7 +26,7 @@
 
     <div v-else-if="goalsWithImages.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
-        <span class="text-blue-200" v-html="icon('board', 'w-20 h-20')" />
+        <span class="text-indigo-200" v-html="icon('board', 'w-20 h-20')" />
       </div>
       <h3 class="text-xl font-semibold text-slate-700 mb-2">No pictures yet</h3>
       <p class="text-slate-400 mb-6">Click "+ Add Picture" to add images to your goals</p>
@@ -87,7 +87,7 @@
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Picture *</label>
             <div
-              class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-blue-400 transition-all"
+              class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 transition-all"
               @click="picInput?.click()"
               @dragover.prevent
               @drop.prevent="handlePicDrop"
@@ -132,7 +132,7 @@ onMounted(() => goalStore.fetchGoals())
 const goalsWithImages = computed(() => goalStore.goals.filter(g => g.imageData))
 
 const rotations = [-2.5, 1.8, -1.2, 2.1, -0.8, 1.5, -2.0, 0.9, -1.6, 2.3]
-const pinColors = ['bg-red-400', 'bg-blue-400', 'bg-emerald-400', 'bg-blue-400', 'bg-orange-400', 'bg-pink-400']
+const pinColors = ['bg-red-400', 'bg-indigo-400', 'bg-emerald-400', 'bg-indigo-400', 'bg-orange-400', 'bg-pink-400']
 const imgHeights = ['h-36', 'h-52', 'h-44', 'h-32', 'h-60', 'h-40', 'h-48', 'h-36', 'h-56', 'h-44']
 
 const showAddPicture = ref(false)

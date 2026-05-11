@@ -22,14 +22,14 @@
           <label class="block text-sm font-medium text-slate-700 mb-2">Checklist items</label>
           <div class="space-y-2 mb-2">
             <div v-for="(sub, i) in form.subTasks" :key="i" class="flex items-center gap-2">
-              <input type="checkbox" v-model="sub.completed" class="w-4 h-4 accent-blue-600 flex-shrink-0" />
+              <input type="checkbox" v-model="sub.completed" class="w-4 h-4 accent-indigo-600 flex-shrink-0" />
               <input v-model="sub.title" class="input py-1.5 text-sm flex-1" placeholder="e.g. Milk" />
               <button type="button" @click="removeSubTask(i)"
                 class="text-slate-300 hover:text-red-400 bg-transparent border-0 cursor-pointer text-lg flex-shrink-0">&#10005;</button>
             </div>
           </div>
           <button type="button" @click="addSubTask"
-            class="text-xs text-blue-600 hover:underline bg-transparent border-0 cursor-pointer p-0">
+            class="text-xs text-indigo-600 hover:underline bg-transparent border-0 cursor-pointer p-0">
             + Add checklist item
           </button>
         </div>
@@ -39,12 +39,12 @@
           <div v-if="!task" class="flex gap-2 mb-3">
             <button type="button" @click="form.dateMode = 'single'"
               class="flex-1 py-2 rounded-xl text-sm font-medium border cursor-pointer transition-all"
-              :class="form.dateMode === 'single' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'">
+              :class="form.dateMode === 'single' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'">
               Single day
             </button>
             <button type="button" @click="form.dateMode = 'range'"
               class="flex-1 py-2 rounded-xl text-sm font-medium border cursor-pointer transition-all"
-              :class="form.dateMode === 'range' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'">
+              :class="form.dateMode === 'range' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'">
               Date range
             </button>
           </div>
@@ -67,7 +67,7 @@
         </div>
 
         <!-- Move occurrence (only for recurring tasks being edited) -->
-        <div v-if="task && task.isRecurring" class="rounded-xl bg-blue-50 border border-blue-100 p-3">
+        <div v-if="task && task.isRecurring" class="rounded-xl bg-indigo-50 border border-indigo-100 p-3">
           <label class="block text-sm font-medium text-slate-700 mb-1">
             Move this week's occurrence to a different day
           </label>
@@ -82,9 +82,9 @@
           <label class="block text-sm font-medium text-slate-700 mb-2">Timing</label>
           <div class="flex gap-2">
             <button type="button" @click="form.isAllDay = true" class="flex-1 py-2 rounded-xl text-sm font-medium border cursor-pointer transition-all"
-              :class="form.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">All day</button>
+              :class="form.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">All day</button>
             <button type="button" @click="form.isAllDay = false" class="flex-1 py-2 rounded-xl text-sm font-medium border cursor-pointer transition-all"
-              :class="!form.isAllDay ? 'bg-blue-600 border-blue-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">Specific time</button>
+              :class="!form.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">Specific time</button>
           </div>
           <div v-if="!form.isAllDay" class="grid grid-cols-2 gap-2 mt-2">
             <div>
