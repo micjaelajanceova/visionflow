@@ -11,6 +11,7 @@ export function useTaskSharing() {
 
   function getSharedWith(task: Task): SharedPerson[] {
     const currentUserId = auth.user?.id
+    if (!currentUserId) return []
     const owner = task.user
     const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
 
@@ -31,6 +32,7 @@ export function useTaskSharing() {
 
   function isShared(task: Task): boolean {
     const currentUserId = auth.user?.id
+    if (!currentUserId) return false
     const owner = task.user
     const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
     if (ownerId !== currentUserId) return true
