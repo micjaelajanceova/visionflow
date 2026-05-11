@@ -26,14 +26,13 @@
         </p>
         <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
         <span v-if="task.isRecurring" class="text-xs text-blue-400">&#8635; recurring</span>
-        <div v-if="isShared(task)" class="flex items-center gap-1 mt-1 flex-wrap">
+        <div v-if="isShared(task)" class="flex items-center gap-0.5 mt-1">
           <template v-for="p in getSharedWith(task)" :key="p.username">
             <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
-              class="w-5 h-5 rounded-full object-cover ring-1 ring-white" />
+              class="w-5 h-5 rounded-full object-cover ring-1 ring-white -ml-1 first:ml-0" />
             <span v-else
-              class="w-5 h-5 rounded-full bg-indigo-400 text-white text-[9px] font-bold flex items-center justify-center ring-1 ring-white"
+              class="w-5 h-5 rounded-full bg-indigo-400 text-white text-[9px] font-bold flex items-center justify-center ring-1 ring-white -ml-1 first:ml-0"
               :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
-            <span class="text-[10px] text-slate-400">{{ p.username }}</span>
           </template>
         </div>
       </div>

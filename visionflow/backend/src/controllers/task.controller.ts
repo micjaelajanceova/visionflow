@@ -96,20 +96,24 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
     const userId = req.user!.id
     const isOwner = await Task.exists({ _id: req.params.id, user: userId })
 
+    const populate = [
+      { path: 'user', select: 'username avatarUrl' },
+      { path: 'participants.userId', select: 'username avatarUrl' },
+    ]
+
     if (isOwner) {
       const task = await Task.findOneAndUpdate(
         { _id: req.params.id, user: userId },
-        req.body,
-        { new: true, runValidators: true }
+        { $set: req.body },
+        { new: true, runValidators: true, populate }
       )
       if (!task) { res.status(404).json({ message: 'Task not found' }); return }
       res.json(task)
     } else {
-      // Participants can only toggle completed
       const task = await Task.findOneAndUpdate(
         { _id: req.params.id, participants: { $elemMatch: { userId, accepted: true } } },
-        { completed: req.body.completed },
-        { new: true }
+        { $set: { completed: req.body.completed } },
+        { new: true, populate }
       )
       if (!task) { res.status(404).json({ message: 'Task not found' }); return }
       res.json(task)

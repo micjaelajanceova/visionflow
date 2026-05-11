@@ -9,32 +9,63 @@ export interface SharedPerson {
 export function useTaskSharing() {
   const auth = useAuthStore()
 
-  function getSharedWith(task: Task): SharedPerson[] {
-    const currentUserId = auth.user?.id
-    const owner = task.user
-    const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
+  function resolveId(val: string | TaskUser | unknown): string {
+    if (!val) return ''
+    if (typeof val === 'string') return val
+    return (val as TaskUser)._id ?? String(val)
+  }
 
-    if (ownerId === currentUserId) {
-      return task.participants
-        .filter(p => p.accepted)
-        .map(p => {
-          const u = p.userId
-          if (typeof u === 'string') return { username: p.email }
-          return { avatarUrl: (u as TaskUser).avatarUrl, username: (u as TaskUser).username }
-        })
-    } else {
-      if (typeof owner === 'string') return []
-      const o = owner as TaskUser
-      return [{ avatarUrl: o.avatarUrl, username: o.username }]
-    }
+  function currentUserId(): string {
+    const u = auth.user as any
+    return u?.id || u?._id || ''
   }
 
   function isShared(task: Task): boolean {
-    const currentUserId = auth.user?.id
-    const owner = task.user
-    const ownerId = typeof owner === 'string' ? owner : (owner as TaskUser)._id
-    if (ownerId !== currentUserId) return true
-    return task.participants?.some(p => p.accepted) ?? false
+    const myId = currentUserId()
+    if (!myId) return false
+    const ownerId = resolveId(task.user)
+    if (ownerId === myId) {
+      return task.participants?.some(p => p.accepted) ?? false
+    }
+    return task.participants?.some(p => resolveId(p.userId) === myId && p.accepted) ?? false
+  }
+
+  function getSharedWith(task: Task): SharedPerson[] {
+    const people: SharedPerson[] = []
+    const seen = new Set<string>()
+    const myId = currentUserId()
+
+    const add = (person: SharedPerson, id: string) => {
+      if (seen.has(id)) return
+      seen.add(id)
+      people.push(person)
+    }
+
+    // Always show current user first
+    if (auth.user && myId) {
+      add({ avatarUrl: auth.user.avatarUrl, username: auth.user.username }, myId)
+    }
+
+    // Owner
+    const ownerId = resolveId(task.user)
+    if (typeof task.user !== 'string') {
+      const o = task.user as TaskUser
+      add({ avatarUrl: o.avatarUrl, username: o.username }, ownerId)
+    }
+
+    // Accepted participants
+    for (const p of (task.participants ?? [])) {
+      if (!p.accepted) continue
+      const pId = resolveId(p.userId)
+      if (typeof p.userId !== 'string') {
+        const u = p.userId as TaskUser
+        add({ avatarUrl: u.avatarUrl, username: u.username }, pId)
+      } else {
+        add({ username: p.email }, pId)
+      }
+    }
+
+    return people
   }
 
   return { getSharedWith, isShared }

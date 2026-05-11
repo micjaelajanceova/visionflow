@@ -61,13 +61,15 @@
                   @click.stop
                 >
                   <span class="truncate flex-1 min-w-0">{{ task.title }}</span>
-                  <template v-if="isShared(task)" v-for="p in getSharedWith(task).slice(0, 1)" :key="p.username">
-                    <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
-                      class="w-3 h-3 rounded-full flex-shrink-0 object-cover ring-1 ring-white" />
-                    <span v-else
-                      class="w-3 h-3 rounded-full flex-shrink-0 bg-indigo-400 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white"
-                      :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
-                  </template>
+                  <div v-if="isShared(task)" class="flex flex-shrink-0">
+                    <template v-for="p in getSharedWith(task).slice(0, 3)" :key="p.username">
+                      <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
+                        class="w-3 h-3 rounded-full object-cover ring-1 ring-white -ml-1 first:ml-0" />
+                      <span v-else
+                        class="w-3 h-3 rounded-full bg-indigo-400 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white -ml-1 first:ml-0"
+                        :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
+                    </template>
+                  </div>
                 </div>
                 <div v-if="getDayDisplayInfo(day.date).moreCount > 0" class="text-xs text-slate-400">
                   +{{ getDayDisplayInfo(day.date).moreCount }} more
@@ -91,13 +93,15 @@
               @click.stop="selectDay(week.days[bar.startCol].date)"
             >
               <span class="truncate leading-none flex-1 min-w-0">{{ bar.label }}</span>
-              <template v-if="isShared(bar.task)" v-for="p in getSharedWith(bar.task).slice(0, 1)" :key="p.username">
-                <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
-                  class="w-3 h-3 rounded-full flex-shrink-0 object-cover ring-1 ring-white ml-0.5" />
-                <span v-else
-                  class="w-3 h-3 rounded-full flex-shrink-0 bg-indigo-500 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white ml-0.5"
-                  :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
-              </template>
+              <div v-if="isShared(bar.task)" class="flex flex-shrink-0 ml-1">
+                <template v-for="p in getSharedWith(bar.task).slice(0, 3)" :key="p.username">
+                  <img v-if="p.avatarUrl" :src="p.avatarUrl" :title="p.username"
+                    class="w-3 h-3 rounded-full object-cover ring-1 ring-white -ml-1 first:ml-0" />
+                  <span v-else
+                    class="w-3 h-3 rounded-full bg-indigo-500 text-white text-[6px] font-bold flex items-center justify-center ring-1 ring-white -ml-1 first:ml-0"
+                    :title="p.username">{{ p.username[0]?.toUpperCase() }}</span>
+                </template>
+              </div>
             </div>
           </div>
         </div>
