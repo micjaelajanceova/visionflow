@@ -105,13 +105,11 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
       if (!task) { res.status(404).json({ message: 'Task not found' }); return }
       res.json(task)
     } else {
-      const updateData = Object.assign({}, req.body)
-      delete updateData.user
-      delete updateData.participants
+      // Participants can only toggle completed
       const task = await Task.findOneAndUpdate(
-        { _id: req.params.id, ...participantFilter(userId) },
-        updateData,
-        { new: true, runValidators: true }
+        { _id: req.params.id, participants: { $elemMatch: { userId, accepted: true } } },
+        { completed: req.body.completed },
+        { new: true }
       )
       if (!task) { res.status(404).json({ message: 'Task not found' }); return }
       res.json(task)
