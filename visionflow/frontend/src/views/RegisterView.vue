@@ -4,9 +4,17 @@
       <div class="text-center mb-8">
         <div class="flex justify-center mb-3">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="w-16 h-16">
-            <rect width="48" height="48" rx="12" fill="#2563eb"/>
-            <path d="M10 14 L24 36 L38 14" stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="24" cy="36" r="3.5" fill="#93c5fd"/>
+            <defs>
+              <linearGradient id="vf-reg-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <rect width="48" height="48" rx="12" fill="url(#vf-reg-bg)"/>
+            <circle cx="24" cy="24" r="15" fill="none" stroke="white" stroke-width="2.2" opacity="0.4"/>
+            <circle cx="24" cy="24" r="9.5" fill="none" stroke="white" stroke-width="2.2" opacity="0.7"/>
+            <circle cx="24" cy="24" r="4.5" fill="none" stroke="white" stroke-width="2.2"/>
+            <circle cx="24" cy="24" r="2" fill="white"/>
           </svg>
         </div>
         <h1 class="text-3xl font-bold text-slate-900">Get started</h1>

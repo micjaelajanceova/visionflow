@@ -61,3 +61,62 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'something went wrong', error })
   }
 }
+
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, avatarUrl } = req.body
+    const userId = req.user?.id
+
+    if (username) {
+      const taken = await User.findOne({ username, _id: { $ne: userId } })
+      if (taken) {
+        res.status(400).json({ message: 'username already taken' })
+        return
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { ...(username && { username }), ...(avatarUrl !== undefined && { avatarUrl }) },
+      { new: true }
+    ).select('-password')
+
+    if (!user) {
+      res.status(404).json({ message: 'user not found' })
+      return
+    }
+
+    res.json({ id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl })
+  } catch (error) {
+    res.status(500).json({ message: 'something went wrong', error })
+  }
+}
+
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { currentPassword, newPassword } = req.body
+    if (!currentPassword || !newPassword || newPassword.length < 6) {
+      res.status(400).json({ message: 'invalid request' })
+      return
+    }
+
+    const user = await User.findById(req.user?.id)
+    if (!user) {
+      res.status(404).json({ message: 'user not found' })
+      return
+    }
+
+    const match = await user.comparePassword(currentPassword)
+    if (!match) {
+      res.status(400).json({ message: 'current password is incorrect' })
+      return
+    }
+
+    user.password = newPassword
+    await user.save()
+
+    res.json({ message: 'password updated' })
+  } catch (error) {
+    res.status(500).json({ message: 'something went wrong', error })
+  }
+}

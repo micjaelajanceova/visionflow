@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { register, login, getMe } from '../controllers/auth.controller'
+import { register, login, getMe, updateProfile, updatePassword } from '../controllers/auth.controller'
 import { protect } from '../middleware/auth.middleware'
 
 const router = Router()
@@ -61,5 +61,7 @@ router.post('/login', login)
  *       200: { description: User data }
  */
 router.get('/me', protect, getMe)
+router.put('/profile', protect, updateProfile)
+router.put('/password', protect, updatePassword)
 
 export default router

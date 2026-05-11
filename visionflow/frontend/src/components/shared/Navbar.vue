@@ -4,9 +4,17 @@
       <div class="flex items-center justify-between h-16">
         <router-link to="/dashboard" class="flex items-center gap-2.5 font-bold text-xl text-blue-600">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="w-7 h-7">
-            <rect width="36" height="36" rx="8" fill="#2563eb"/>
-            <path d="M8 11 L18 27 L28 11" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="18" cy="27" r="2.5" fill="#93c5fd"/>
+            <defs>
+              <linearGradient id="vf-nav-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <rect width="36" height="36" rx="9" fill="url(#vf-nav-bg)"/>
+            <circle cx="18" cy="18" r="11" fill="none" stroke="white" stroke-width="1.8" opacity="0.4"/>
+            <circle cx="18" cy="18" r="7" fill="none" stroke="white" stroke-width="1.8" opacity="0.7"/>
+            <circle cx="18" cy="18" r="3.5" fill="none" stroke="white" stroke-width="1.8"/>
+            <circle cx="18" cy="18" r="1.5" fill="white"/>
           </svg>
           <span>VisionFlow</span>
         </router-link>

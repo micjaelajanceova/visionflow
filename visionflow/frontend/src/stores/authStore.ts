@@ -6,6 +6,7 @@ interface User {
   id: string
   username: string
   email: string
+  avatarUrl?: string
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -43,5 +44,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, token, isAuthenticated, login, register, logout, fetchMe }
+  const updateProfile = async (payload: { username?: string; avatarUrl?: string | null }) => {
+    const { data } = await client.put('/auth/profile', payload)
+    if (user.value) user.value = { ...user.value, ...data }
+  }
+
+  const updatePassword = async (currentPassword: string, newPassword: string) => {
+    await client.put('/auth/password', { currentPassword, newPassword })
+  }
+
+  return { user, token, isAuthenticated, login, register, logout, fetchMe, updateProfile, updatePassword }
 })

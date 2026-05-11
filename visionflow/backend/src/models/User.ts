@@ -6,6 +6,7 @@ export interface IUser extends Document {
   username: string
   email: string
   password: string
+  avatarUrl?: string
   createdAt: Date
   comparePassword(candidatePassword: string): Promise<boolean>
 }
@@ -15,6 +16,7 @@ const UserSchema = new Schema<IUser>(
     username: { type: String, required: true, unique: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, minlength: 6 },
+    avatarUrl: { type: String, default: null },
   },
   { timestamps: true }
 )

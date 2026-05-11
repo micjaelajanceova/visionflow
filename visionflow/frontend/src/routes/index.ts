@@ -14,6 +14,7 @@ const router = createRouter({
     { path: '/calendar', component: () => import('../views/CalendarView.vue'), meta: { requiresAuth: true } },
     { path: '/progress', component: () => import('../views/ProgressView.vue'), meta: { requiresAuth: true } },
     { path: '/explore', component: () => import('../views/ExploreView.vue') },
+    { path: '/profile', component: () => import('../views/ProfileView.vue'), meta: { requiresAuth: true } },
   ],
 })
 

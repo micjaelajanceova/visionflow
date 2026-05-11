@@ -19,9 +19,17 @@
     <div class="px-6 py-6 border-b border-slate-100">
       <router-link to="/dashboard" class="flex items-center gap-2.5 font-bold text-xl text-blue-600" @click="menuOpen = false">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" class="w-8 h-8 flex-shrink-0">
-          <rect width="36" height="36" rx="8" fill="#2563eb"/>
-          <path d="M8 11 L18 27 L28 11" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="18" cy="27" r="2.5" fill="#93c5fd"/>
+          <defs>
+            <linearGradient id="vf-side-bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect width="36" height="36" rx="9" fill="url(#vf-side-bg)"/>
+          <circle cx="18" cy="18" r="11" fill="none" stroke="white" stroke-width="1.8" opacity="0.4"/>
+          <circle cx="18" cy="18" r="7" fill="none" stroke="white" stroke-width="1.8" opacity="0.7"/>
+          <circle cx="18" cy="18" r="3.5" fill="none" stroke="white" stroke-width="1.8"/>
+          <circle cx="18" cy="18" r="1.5" fill="white"/>
         </svg>
         <span>VisionFlow</span>
       </router-link>
@@ -44,9 +52,23 @@
 
     <!-- User & Logout -->
     <div class="px-3 py-4 border-t border-slate-100">
-      <div v-if="auth.user" class="px-4 py-2 mb-2 text-xs text-slate-400 truncate">
-        Signed in as <span class="font-medium text-slate-600">{{ auth.user.username }}</span>
-      </div>
+      <router-link
+        v-if="auth.user"
+        to="/profile"
+        @click="menuOpen = false"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition-all group mb-1"
+      >
+        <div class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden bg-indigo-100 flex items-center justify-center ring-1 ring-indigo-200">
+          <img v-if="auth.user.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
+          <span v-else class="text-sm font-bold text-indigo-500 select-none">
+            {{ auth.user.username?.[0]?.toUpperCase() }}
+          </span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-slate-700 truncate group-hover:text-indigo-600">{{ auth.user.username }}</div>
+          <div class="text-xs text-slate-400">View profile</div>
+        </div>
+      </router-link>
       <button
         @click="handleLogout"
         class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all cursor-pointer border-0 bg-transparent"
