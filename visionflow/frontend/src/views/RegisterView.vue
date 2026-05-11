@@ -34,6 +34,12 @@
           <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
           <input v-model="password" type="password" placeholder="Min. 6 characters" required minlength="6" class="input" />
         </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
+          <input v-model="confirmPassword" type="password" placeholder="Repeat your password" required class="input"
+            :class="confirmPassword && password !== confirmPassword ? 'border-red-400 focus:ring-red-400' : ''" />
+          <p v-if="confirmPassword && password !== confirmPassword" class="text-red-500 text-xs mt-1">Passwords do not match</p>
+        </div>
 
         <p v-if="error" class="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-2">{{ error }}</p>
 
@@ -58,12 +64,17 @@ import { useAuthStore } from '../stores/authStore'
 const username = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const error = ref('')
 const loading = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
 
 const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match'
+    return
+  }
   error.value = ''
   loading.value = true
   try {
