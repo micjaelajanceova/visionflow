@@ -16,6 +16,7 @@ const router = createRouter({
     { path: '/explore', component: () => import('../views/ExploreView.vue') },
     { path: '/profile', component: () => import('../views/ProfileView.vue'), meta: { requiresAuth: true } },
     { path: '/shared', component: () => import('../views/SharedTasksView.vue'), meta: { requiresAuth: true } },
+    { path: '/users/:id', component: () => import('../views/UserProfileView.vue') },
   ],
 })
 

@@ -2,6 +2,7 @@ import { useAuthStore } from '../stores/authStore'
 import type { Task, TaskUser } from '../types/Task'
 
 export interface SharedPerson {
+  userId?: string
   avatarUrl?: string
   username: string
 }
@@ -43,14 +44,14 @@ export function useTaskSharing() {
 
     // Always show current user first
     if (auth.user && myId) {
-      add({ avatarUrl: auth.user.avatarUrl, username: auth.user.username }, myId)
+      add({ userId: myId, avatarUrl: auth.user.avatarUrl, username: auth.user.username }, myId)
     }
 
     // Owner
     const ownerId = resolveId(task.user)
     if (typeof task.user !== 'string') {
       const o = task.user as TaskUser
-      add({ avatarUrl: o.avatarUrl, username: o.username }, ownerId)
+      add({ userId: ownerId, avatarUrl: o.avatarUrl, username: o.username }, ownerId)
     }
 
     // Accepted participants
@@ -59,9 +60,9 @@ export function useTaskSharing() {
       const pId = resolveId(p.userId)
       if (typeof p.userId !== 'string') {
         const u = p.userId as TaskUser
-        add({ avatarUrl: u.avatarUrl, username: u.username }, pId)
+        add({ userId: pId, avatarUrl: u.avatarUrl, username: u.username }, pId)
       } else {
-        add({ username: p.email }, pId)
+        add({ userId: pId, username: p.email }, pId)
       }
     }
 

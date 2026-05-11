@@ -45,7 +45,7 @@
               </span>
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ goal.title }}</p>
               <div class="flex items-center justify-between mt-1.5">
-                <span class="text-xs text-white/75 font-medium">{{ (goal.user as any)?.username || '' }}</span>
+                <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
               </div>
             </div>
@@ -63,7 +63,7 @@
               </span>
               <p class="text-sm font-semibold text-white leading-snug">{{ goal.title }}</p>
               <div class="flex items-center justify-between mt-1">
-                <span class="text-xs text-white/75">{{ (goal.user as any)?.username || '' }}</span>
+                <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
               </div>
             </div>
@@ -90,7 +90,7 @@
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ photo.taskTitle }}</p>
               <p v-if="photo.goalTitle" class="text-xs text-white/60 mt-0.5 truncate">{{ photo.goalTitle }}</p>
               <div class="flex items-center justify-between mt-1.5">
-                <span class="text-xs text-white/75 font-medium">{{ photo.username }}</span>
+                <router-link :to="`/users/${photo.userId}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ photo.username }}</router-link>
                 <span class="text-xs text-white/60">{{ formatDate(photo.date) }}</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ const doneGoals = ref<Goal[]>([])
 
 interface TaskPhoto {
   taskId: string; taskTitle: string; goalTitle?: string
-  username: string; date: string; photoData: string; progressPercent: number
+  userId: string; username: string; date: string; photoData: string; progressPercent: number
 }
 const taskPhotos = ref<TaskPhoto[]>([])
 
@@ -144,6 +144,7 @@ onMounted(async () => {
       taskId: p.taskId,
       taskTitle: p.taskTitle,
       goalTitle: p.goal?.title,
+      userId: p.user?._id || '',
       username: p.user?.username || '',
       date: p.date,
       photoData: p.photoData,
