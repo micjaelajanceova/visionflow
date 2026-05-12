@@ -76,7 +76,7 @@
     <!-- Per-date checklist for recurring tasks -->
     <div v-if="task.isRecurring" class="px-3 pb-2 border-t border-slate-50 pt-2">
       <p class="text-xs text-slate-400 mb-1.5">Checklist for this day</p>
-      <div class="space-y-1 max-h-[160px] overflow-y-auto pr-1 mb-1.5">
+      <div class="space-y-1 mb-1.5">
         <div v-for="(item, si) in taskStore.getDateSubTasks(task, date)" :key="si"
           class="flex items-center gap-2 group/item">
           <input type="checkbox" :checked="item.completed"
@@ -112,7 +112,7 @@
     <!-- Checklist for non-recurring tasks -->
     <div v-else-if="task.subTasks && task.subTasks.length > 0" class="px-3 pb-2 border-t border-slate-50 pt-2">
       <p class="text-xs text-slate-400 mb-1.5">Checklist</p>
-      <div class="space-y-1 max-h-[160px] overflow-y-auto pr-1">
+      <div class="space-y-1">
         <label v-for="(sub, si) in task.subTasks" :key="si" class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" :checked="sub.completed"
             @change="taskStore.toggleSubTask(task._id, si)"

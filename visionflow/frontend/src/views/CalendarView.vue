@@ -1,6 +1,6 @@
 <template>
-  <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
-    <div class="page-header">
+  <div class="flex flex-col px-4 sm:px-0 max-w-6xl mx-auto w-full" style="height: 100vh; overflow: hidden; padding-top: 2rem">
+    <div class="flex items-center justify-between mb-4 flex-shrink-0">
       <h1 class="page-title">
         <span class="text-indigo-500 flex-shrink-0" v-html="icon('calendar', 'w-7 h-7')" />
         Calendar
@@ -8,26 +8,26 @@
       <button @click="openAddTask" class="btn btn-primary">+ New task</button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4" style="padding-bottom: 12px">
       <!-- Calendar grid -->
-      <div class="lg:col-span-2">
-        <div class="card p-0 overflow-hidden">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div class="lg:col-span-2 flex flex-col min-h-0">
+        <div class="card p-0 overflow-hidden flex-1 flex flex-col min-h-0">
+          <div class="flex items-center justify-between px-6 py-3 border-b border-slate-100 flex-shrink-0">
             <button @click="prevMonth" class="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-0 cursor-pointer text-slate-500 text-xl">&#8249;</button>
             <h2 class="font-semibold text-slate-900 text-lg">{{ monthName }} {{ year }}</h2>
             <button @click="nextMonth" class="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-0 cursor-pointer text-slate-500 text-xl">&#8250;</button>
           </div>
 
-          <div class="grid grid-cols-7 border-b border-slate-100">
+          <div class="grid grid-cols-7 border-b border-slate-100 flex-shrink-0">
             <div v-for="d in dayHeaders" :key="d" class="text-center text-xs font-semibold text-slate-400 py-2">{{ d }}</div>
           </div>
 
-          <div v-for="(week, wi) in calendarWeeks" :key="wi" class="relative grid grid-cols-7">
+          <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div v-for="(week, wi) in calendarWeeks" :key="wi" class="flex-1 relative grid grid-cols-7">
             <div
               v-for="day in week.days"
               :key="day.date"
-              class="p-1.5 border-r border-b border-slate-50 cursor-pointer hover:bg-indigo-50/50 transition-all"
-              :style="{ minHeight: (80 + getRangeBarsForWeek(week.days).length * 20) + 'px' }"
+              class="p-1.5 border-r border-b border-slate-50 cursor-pointer hover:bg-indigo-50/50 transition-all overflow-hidden min-h-0"
               :class="{
                 'bg-indigo-50': day.isToday,
                 'opacity-0 pointer-events-none': !day.day,
@@ -105,9 +105,10 @@
               </div>
             </div>
           </div>
+          </div>
         </div>
 
-        <div class="flex flex-wrap gap-4 mt-4 text-xs text-slate-500">
+        <div class="flex flex-wrap gap-3 py-2 text-xs text-slate-500 flex-shrink-0">
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-600" /> Today</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-200" /> Goal task</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-sky-200" /> Task</div>
@@ -118,9 +119,9 @@
       </div>
 
       <!-- Sidebar: selected day -->
-      <div class="space-y-3">
+      <div class="flex flex-col gap-3 min-h-0" style="max-height: calc(100vh - 32px - 52px - 32px - 16px)">
         <!-- Overdue -->
-        <div v-if="overdueTasks.length > 0" class="card !p-0 overflow-hidden border-l-4 border-l-red-400">
+        <div v-if="overdueTasks.length > 0" class="card !p-0 overflow-hidden border-l-4 border-l-red-400 flex-shrink-0">
           <button
             @click="overdueOpen = !overdueOpen"
             class="w-full flex items-center justify-between px-4 py-3 bg-red-50 hover:bg-red-100 transition-all cursor-pointer border-0 text-left"
@@ -144,7 +145,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card flex-1 min-h-0 overflow-y-auto">
           <h3 class="font-semibold text-slate-900 mb-3">
             {{ selectedDate ? formatSelectedDate(selectedDate) : 'Select a day' }}
           </h3>
@@ -366,9 +367,13 @@ function getRangeBarsForWeek(weekDays: CalendarDay[]): RangeBar[] {
       const startsThisWeek = taskStart >= weekStart
       const endsThisWeek = taskEnd <= weekEnd
       const startCol = startsThisWeek ? weekDays.findIndex(d => d.date === taskStart) : weekDays.findIndex(d => d.day !== null)
+      const lastIndex = (arr: CalendarDay[], fn: (d: CalendarDay) => boolean) => {
+        for (let i = arr.length - 1; i >= 0; i--) if (fn(arr[i])) return i
+        return -1
+      }
       const endCol = endsThisWeek
-        ? weekDays.findLastIndex(d => d.date === taskEnd)
-        : weekDays.findLastIndex(d => d.day !== null)
+        ? lastIndex(weekDays, d => d.date === taskEnd)
+        : lastIndex(weekDays, d => d.day !== null)
       const span = Math.max(1, endCol - startCol + 1)
       return {
         task: t,
