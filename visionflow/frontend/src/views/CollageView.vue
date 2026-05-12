@@ -40,14 +40,14 @@
         <div
           v-for="(goal, index) in goalsWithImages"
           :key="goal._id"
-          class="break-inside-avoid mb-4 group relative cursor-pointer pt-3"
+          class="break-inside-avoid mb-4 group relative cursor-pointer pt-6"
           :style="{ transform: `rotate(${rotations[index % rotations.length]}deg)`, transition: 'transform 0.2s ease' }"
           @mouseenter="(e) => ((e.currentTarget as HTMLElement).style.transform = 'rotate(0deg) scale(1.04)')"
           @mouseleave="(e) => ((e.currentTarget as HTMLElement).style.transform = `rotate(${rotations[index % rotations.length]}deg)`)"
           @click="router.push(`/goals/${goal._id}`)"
         >
           <!-- Pin -->
-          <div class="absolute top-0.5 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full shadow-md border-2 border-white" :class="pinColors[index % pinColors.length]" />
+          <div class="absolute top-2.5 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full shadow-md border-2 border-white" :class="pinColors[index % pinColors.length]" />
           <!-- Delete button -->
           <button
             @click.stop="removeImage(goal._id)"

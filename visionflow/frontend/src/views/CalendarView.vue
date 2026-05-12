@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col px-4 sm:px-0 max-w-6xl mx-auto w-full" style="height: 100vh; overflow: hidden; padding-top: 2rem">
-    <div class="flex items-center justify-between mb-4 flex-shrink-0">
+  <div class="px-4 sm:px-0 max-w-6xl mx-auto w-full py-6 lg:flex lg:flex-col lg:h-screen lg:overflow-hidden lg:py-0">
+    <div class="flex items-center justify-between mb-4 lg:flex-shrink-0 lg:pt-6">
       <h1 class="page-title">
         <span class="text-indigo-500 flex-shrink-0" v-html="icon('calendar', 'w-7 h-7')" />
         Calendar
@@ -8,10 +8,10 @@
       <button @click="openAddTask" class="btn btn-primary">+ New task</button>
     </div>
 
-    <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-4" style="padding-bottom: 12px">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:flex-1 lg:min-h-0 pb-6 lg:pb-3">
       <!-- Calendar grid -->
-      <div class="lg:col-span-2 flex flex-col min-h-0">
-        <div class="card p-0 overflow-hidden flex-1 flex flex-col min-h-0">
+      <div class="lg:col-span-2 lg:flex lg:flex-col lg:min-h-0">
+        <div class="card p-0 overflow-hidden lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
           <div class="flex items-center justify-between px-6 py-3 border-b border-slate-100 flex-shrink-0">
             <button @click="prevMonth" class="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-0 cursor-pointer text-slate-500 text-xl">&#8249;</button>
             <h2 class="font-semibold text-slate-900 text-lg">{{ monthName }} {{ year }}</h2>
@@ -22,8 +22,8 @@
             <div v-for="d in dayHeaders" :key="d" class="text-center text-xs font-semibold text-slate-400 py-2">{{ d }}</div>
           </div>
 
-          <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <div v-for="(week, wi) in calendarWeeks" :key="wi" class="flex-1 relative grid grid-cols-7">
+          <div class="lg:flex-1 lg:min-h-0 lg:flex lg:flex-col lg:overflow-hidden">
+          <div v-for="(week, wi) in calendarWeeks" :key="wi" class="relative grid grid-cols-7 min-h-[80px] lg:min-h-0 lg:flex-1">
             <div
               v-for="day in week.days"
               :key="day.date"
@@ -119,9 +119,9 @@
       </div>
 
       <!-- Sidebar: selected day -->
-      <div class="flex flex-col gap-3 min-h-0" style="max-height: calc(100vh - 32px - 52px - 32px - 16px)">
+      <div class="flex flex-col gap-3 lg:min-h-0 lg:overflow-hidden lg:max-h-[calc(100vh-theme(spacing.6)-3.5rem-theme(spacing.6))]">
         <!-- Overdue -->
-        <div v-if="overdueTasks.length > 0" class="card !p-0 overflow-hidden border-l-4 border-l-red-400 flex-shrink-0">
+        <div v-if="overdueTasks.length > 0" class="card !p-0 overflow-hidden border-l-4 border-l-red-400 flex-shrink-0 max-h-[50vh] lg:max-h-none overflow-y-auto">
           <button
             @click="overdueOpen = !overdueOpen"
             class="w-full flex items-center justify-between px-4 py-3 bg-red-50 hover:bg-red-100 transition-all cursor-pointer border-0 text-left"
@@ -145,7 +145,7 @@
           </div>
         </div>
 
-        <div class="card flex-1 min-h-0 overflow-y-auto">
+        <div class="card min-h-[40vh] lg:min-h-0 lg:flex-1 overflow-y-auto">
           <h3 class="font-semibold text-slate-900 mb-3">
             {{ selectedDate ? formatSelectedDate(selectedDate) : 'Select a day' }}
           </h3>

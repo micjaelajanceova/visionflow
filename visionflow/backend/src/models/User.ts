@@ -7,6 +7,8 @@ export interface IUser extends Document {
   email: string
   password: string
   avatarUrl?: string
+  isAdmin: boolean
+  isBlocked: boolean
   createdAt: Date
   comparePassword(candidatePassword: string): Promise<boolean>
 }
@@ -17,6 +19,8 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, minlength: 6 },
     avatarUrl: { type: String, default: null },
+    isAdmin: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false },
   },
   { timestamps: true }
 )

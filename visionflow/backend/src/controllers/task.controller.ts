@@ -17,7 +17,7 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
       .sort({ createdAt: -1 })
     res.json(tasks)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -28,7 +28,7 @@ export const getPendingInvites = async (req: Request, res: Response): Promise<vo
     }).populate('user', 'username email')
     res.json(tasks)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -52,7 +52,7 @@ export const inviteToTask = async (req: Request, res: Response): Promise<void> =
     await task.save()
     res.json({ message: 'Invite sent' })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -78,16 +78,24 @@ export const respondToInvite = async (req: Request, res: Response): Promise<void
       res.json({ message: 'Declined' })
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
+const TASK_LIMIT = 500
+
 export const createTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    const task = await Task.create({ ...req.body, user: req.user?.id })
+    const count = await Task.countDocuments({ user: req.user?.id })
+    if (count >= TASK_LIMIT) {
+      res.status(429).json({ message: `Task limit reached (max ${TASK_LIMIT}).` })
+      return
+    }
+    const { user: _u, participants: _p, ...safeBody } = req.body
+    const task = await Task.create({ ...safeBody, user: req.user?.id })
     res.status(201).json(task)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -109,7 +117,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     res.json(task)
   } catch (error) {
-    res.status(500).json({ message: 'could not update task', error })
+    res.status(500).json({ message: 'could not update task' })
   }
 }
 
@@ -137,7 +145,7 @@ export const completeTaskDate = async (req: Request, res: Response): Promise<voi
     await task.save()
     res.json(task)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -156,7 +164,7 @@ export const updateDateSubTasks = async (req: Request, res: Response): Promise<v
     await task.save()
     res.json(task)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -177,7 +185,7 @@ export const toggleSubTaskDate = async (req: Request, res: Response): Promise<vo
     await task.save()
     res.json(task)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -194,7 +202,7 @@ export const skipTaskDate = async (req: Request, res: Response): Promise<void> =
     await task.save()
     res.json(task)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -204,7 +212,7 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     res.json({ message: 'Task deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -232,7 +240,7 @@ export const leaveTask = async (req: Request, res: Response): Promise<void> => {
     if (!task) { res.status(404).json({ message: 'Task not found' }); return }
     res.json({ message: 'Left task' })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -262,7 +270,7 @@ export const getPublicCompletionPhotos = async (_req: Request, res: Response): P
     photos.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     res.json(photos)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 

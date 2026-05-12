@@ -6,7 +6,7 @@ export const getProgressByGoal = async (req: Request, res: Response): Promise<vo
     const entries = await Progress.find({ goal: req.params.goalId, user: req.user?.id }).sort({ date: -1 })
     res.json(entries)
   } catch (error) {
-    res.status(500).json({ message: 'could not load progress', error })
+    res.status(500).json({ message: 'could not load progress' })
   }
 }
 
@@ -15,7 +15,7 @@ export const createProgress = async (req: Request, res: Response): Promise<void>
     const entry = await Progress.create({ ...req.body, user: req.user?.id })
     res.status(201).json(entry)
   } catch (error) {
-    res.status(500).json({ message: 'could not save progress entry', error })
+    res.status(500).json({ message: 'could not save progress entry' })
   }
 }
 
@@ -29,7 +29,7 @@ export const updateProgress = async (req: Request, res: Response): Promise<void>
     if (!entry) { res.status(404).json({ message: 'Progress entry not found' }); return }
     res.json(entry)
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
 
@@ -38,6 +38,6 @@ export const deleteProgress = async (req: Request, res: Response): Promise<void>
     await Progress.findOneAndDelete({ _id: req.params.id, user: req.user?.id })
     res.json({ message: 'deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
