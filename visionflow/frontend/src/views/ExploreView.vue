@@ -24,7 +24,7 @@
     <div v-else>
       <p class="text-xs text-slate-400 mb-6">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }} shared</p>
 
-      <div class="columns-2 sm:columns-3 lg:columns-4 gap-4">
+      <div class="pt-3 columns-2 sm:columns-3 lg:columns-4 gap-4">
         <!-- Goal completion items -->
         <div
           v-for="goal in doneGoals"
@@ -37,7 +37,7 @@
           <div v-if="goal.donePhoto || goal.imageData" class="relative overflow-hidden">
             <img
               :src="(goal.donePhoto || goal.imageData)!"
-              class="w-full object-cover block group-hover:scale-105 transition-transform duration-300"
+              class="w-fullobject-cover block transition-transform duration-300"
               style="max-height:500px;max-width:100%;"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
@@ -83,7 +83,7 @@
           <div class="relative overflow-hidden">
             <img
               :src="photo.photoData"
-              class="w-full object-cover block group-hover:scale-105 transition-transform duration-300"
+              class="w-full object-cover block transition-transform duration-300"
               style="max-height:500px;max-width:100%;"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
