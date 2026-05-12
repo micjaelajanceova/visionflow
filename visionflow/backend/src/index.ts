@@ -7,6 +7,7 @@ import goalRoutes from './routes/goal.routes'
 import taskRoutes from './routes/task.routes'
 import progressRoutes from './routes/progress.routes'
 import usersRoutes from './routes/users.routes'
+import adminRoutes from './routes/admin.routes'
 import { setupSwagger } from './config/swagger'
 
 dotenv.config()
@@ -28,6 +29,7 @@ app.use('/api/goals', goalRoutes)
 app.use('/api/tasks', taskRoutes)
 app.use('/api/progress', progressRoutes)
 app.use('/api/users', usersRoutes)
+app.use('/api/admin', adminRoutes)
 
 setupSwagger(app)
 const PORT = process.env.PORT || 5000

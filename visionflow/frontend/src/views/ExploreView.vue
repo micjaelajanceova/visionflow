@@ -50,6 +50,10 @@
                 <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
               </div>
+              <div v-if="isAdmin" class="flex gap-1 mt-2">
+                <button @click.stop="adminDeleteGoalPhoto(goal._id)" class="text-xs bg-red-500/80 hover:bg-red-600 text-white rounded px-2 py-0.5 border-0 cursor-pointer">Delete photo</button>
+                <button @click.stop="adminToggleBlock((goal.user as any)?._id, (goal.user as any)?.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked((goal.user as any)?._id) ? 'Unblock user' : 'Block user' }}</button>
+              </div>
             </div>
           </div>
 
@@ -67,6 +71,9 @@
               <div class="flex items-center justify-between mt-1">
                 <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
+              </div>
+              <div v-if="isAdmin" class="flex gap-1 mt-2">
+                <button @click.stop="adminToggleBlock((goal.user as any)?._id, (goal.user as any)?.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked((goal.user as any)?._id) ? 'Unblock user' : 'Block user' }}</button>
               </div>
             </div>
           </div>
@@ -97,6 +104,10 @@
                 <router-link :to="`/users/${photo.userId}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ photo.username }}</router-link>
                 <span class="text-xs text-white/60">{{ formatDate(photo.date) }}</span>
               </div>
+              <div v-if="isAdmin" class="flex gap-1 mt-2">
+                <button @click.stop="adminDeleteTaskPhoto(photo.taskId, photo.date)" class="text-xs bg-red-500/80 hover:bg-red-600 text-white rounded px-2 py-0.5 border-0 cursor-pointer">Delete photo</button>
+                <button @click.stop="adminToggleBlock(photo.userId, photo.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked(photo.userId) ? 'Unblock user' : 'Block user' }}</button>
+              </div>
             </div>
           </div>
         </div>
@@ -123,6 +134,34 @@ interface TaskPhoto {
   userId: string; username: string; date: string; photoData: string; progressPercent: number
 }
 const taskPhotos = ref<TaskPhoto[]>([])
+
+const isAdmin = computed(() => !!authStore.user?.isAdmin)
+const blockedUserIds = ref<Set<string>>(new Set())
+
+const isBlocked = (userId: string) => blockedUserIds.value.has(userId)
+
+const adminDeleteTaskPhoto = async (taskId: string, date: string) => {
+  if (!confirm('Delete this photo from Explore?')) return
+  await client.delete(`/admin/tasks/${taskId}/photo/${date}`)
+  taskPhotos.value = taskPhotos.value.filter(p => !(p.taskId === taskId && p.date === date))
+}
+
+const adminDeleteGoalPhoto = async (goalId: string) => {
+  if (!confirm('Delete this photo from Explore?')) return
+  await client.delete(`/admin/goals/${goalId}/photo`)
+  const g = doneGoals.value.find(g => g._id === goalId)
+  if (g) { (g as any).donePhoto = null; (g as any).isDonePublic = false }
+  doneGoals.value = doneGoals.value.filter(g => g._id !== goalId || g.imageData)
+}
+
+const adminToggleBlock = async (userId: string, username: string) => {
+  const shouldBlock = !isBlocked(userId)
+  if (!confirm(`${shouldBlock ? 'Block' : 'Unblock'} user ${username}?`)) return
+  await client.put(`/admin/users/${userId}/block`, { blocked: shouldBlock })
+  const next = new Set(blockedUserIds.value)
+  shouldBlock ? next.add(userId) : next.delete(userId)
+  blockedUserIds.value = next
+}
 
 const isMyId = (id: unknown) => !!authStore.user?.id && String(id) === String(authStore.user.id)
 
@@ -153,10 +192,13 @@ const catIcon = (cat: string) => ({ Health: 'checkCircle', Career: 'progress', F
 onMounted(async () => {
   loading.value = true
   try {
-    const [goalsRes, photosRes] = await Promise.all([
+    const requests: Promise<any>[] = [
       client.get('/goals/public-done'),
       client.get('/tasks/public-photos'),
-    ])
+    ]
+    if (authStore.user?.isAdmin) requests.push(client.get('/admin/users'))
+
+    const [goalsRes, photosRes, usersRes] = await Promise.all(requests)
     doneGoals.value = goalsRes.data
     taskPhotos.value = (photosRes.data as any[]).map(p => ({
       taskId: p.taskId,
@@ -169,6 +211,11 @@ onMounted(async () => {
       photoData: p.photoData,
       progressPercent: p.progressPercent,
     }))
+    if (usersRes) {
+      blockedUserIds.value = new Set(
+        (usersRes.data as any[]).filter(u => u.isBlocked).map(u => String(u._id))
+      )
+    }
   } finally {
     loading.value = false
   }

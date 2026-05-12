@@ -21,7 +21,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const user = await User.create({ username, email, password })
     res.status(201).json({
       token: generateToken(user._id.toString(), user.email),
-      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl },
+      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.isAdmin },
     })
   } catch (error) {
     res.status(500).json({ message: 'something went wrong', error })
@@ -38,9 +38,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    if (user.isBlocked) {
+      res.status(403).json({ message: 'Your account has been blocked.' })
+      return
+    }
+
     res.json({
       token: generateToken(user._id.toString(), user.email),
-      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl },
+      user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.isAdmin },
     })
   } catch (error) {
     res.status(500).json({ message: 'something went wrong', error })
