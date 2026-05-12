@@ -48,6 +48,12 @@
         >
           <!-- Pin -->
           <div class="absolute top-0.5 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full shadow-md border-2 border-white" :class="pinColors[index % pinColors.length]" />
+          <!-- Delete button -->
+          <button
+            @click.stop="removeImage(goal._id)"
+            class="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-black/50 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 border-0 cursor-pointer"
+            title="Remove from board"
+          >✕</button>
           <!-- Photo card -->
           <div class="bg-white rounded-sm overflow-hidden" style="box-shadow: 2px 4px 16px rgba(0,0,0,0.18);">
             <img
@@ -177,6 +183,12 @@ const savePicture = async () => {
     closeAddPicture()
   } finally {
     saving.value = false
+  }
+}
+
+const removeImage = async (goalId: string) => {
+  if (confirm('Remove this picture from the board?')) {
+    await goalStore.updateGoal(goalId, { imageData: null } as any)
   }
 }
 </script>

@@ -20,9 +20,6 @@
         </p>
         <div class="flex gap-2">
           <router-link :to="`/goals/${goal._id}`" class="btn btn-primary flex-1 text-xs py-1.5">View</router-link>
-          <button @click="$emit('edit', goal)" class="btn btn-secondary text-xs py-1.5 px-3" title="Edit">
-            <span v-html="icon('pencil', 'w-3.5 h-3.5')" />
-          </button>
           <button @click="$emit('delete', goal._id)" class="btn btn-danger text-xs py-1.5 px-3" title="Delete">
             <span v-html="icon('trash', 'w-3.5 h-3.5')" />
           </button>

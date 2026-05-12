@@ -22,10 +22,13 @@
             </span>
             <span v-else-if="isOverdue" class="badge bg-red-100 text-red-600">{{ daysLeft }} days over deadline</span>
           </div>
-          <span class="text-sm text-slate-400 flex items-center gap-1">
-            <span class="text-slate-400" v-html="icon('calendar', 'w-4 h-4')" />
-            Due {{ formatDate(goal.targetDate) }}
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-400 flex items-center gap-1">
+              <span class="text-slate-400" v-html="icon('calendar', 'w-4 h-4')" />
+              Due {{ formatDate(goal.targetDate) }}
+            </span>
+            <button v-if="!goal.isDone" @click="openEditGoal" class="btn btn-secondary text-xs py-1.5 px-3">Edit</button>
+          </div>
         </div>
 
         <h1 class="text-2xl font-bold text-slate-900 mb-2">{{ goal.title }}</h1>
@@ -80,8 +83,8 @@
                 </div>
               </div>
               <div class="flex gap-1 flex-shrink-0">
-                <button @click="openEditTask(task)" class="btn btn-secondary text-xs py-1 px-2">✏️</button>
-                <button @click="deleteGoalTask(task._id)" class="btn btn-danger text-xs py-1 px-2">🗑</button>
+                <button @click="openEditTask(task)" class="btn btn-secondary text-xs py-1 px-3">Edit</button>
+                <button @click="deleteGoalTask(task._id)" class="btn btn-danger text-xs py-1 px-3">Delete</button>
               </div>
             </div>
             <div class="mt-3">
@@ -162,6 +165,61 @@
       </div>
     </div>
 
+    <!-- Edit Goal Modal -->
+    <div v-if="showEditGoal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showEditGoal = false">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-slate-900">Edit Goal</h2>
+          <button @click="showEditGoal = false" class="text-slate-400 hover:text-slate-600 text-2xl bg-transparent border-0 cursor-pointer">×</button>
+        </div>
+        <form @submit.prevent="submitEditGoal" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Title *</label>
+            <input v-model="editGoalForm.title" required class="input" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+            <textarea v-model="editGoalForm.description" rows="2" class="input resize-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+            <select v-model="editGoalForm.category" class="input">
+              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Target date *</label>
+            <input v-model="editGoalForm.targetDate" type="date" required class="input" />
+          </div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input v-model="editGoalForm.isPublic" type="checkbox" class="w-4 h-4 accent-indigo-600" />
+            <span class="text-sm text-slate-700">Show on Explore (public)</span>
+          </label>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Picture</label>
+            <div
+              class="border-2 border-dashed border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-indigo-400 transition-all"
+              @click="editPicInput?.click()"
+            >
+              <img v-if="editGoalForm.imagePreview" :src="editGoalForm.imagePreview" class="max-h-36 mx-auto rounded-lg object-cover mb-2" />
+              <p class="text-xs text-slate-400">{{ editGoalForm.imagePreview ? 'Click to replace' : 'Click to add a picture' }}</p>
+            </div>
+            <input ref="editPicInput" type="file" accept="image/*" class="hidden" @change="handleEditPic" />
+            <button
+              v-if="editGoalForm.imagePreview"
+              type="button"
+              @click="editGoalForm.imagePreview = ''; editGoalForm.imageData = null"
+              class="btn btn-secondary text-xs mt-2 text-red-500"
+            >Remove picture</button>
+          </div>
+          <div class="flex gap-3 pt-1">
+            <button type="submit" class="btn btn-primary flex-1">Save Changes</button>
+            <button type="button" @click="showEditGoal = false" class="btn btn-secondary px-6">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Done Modal -->
     <div v-if="showDoneModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showDoneModal = false">
       <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
@@ -221,6 +279,48 @@ const goal = ref<Goal | null>(null)
 const showTaskForm = ref(false)
 const editingTask = ref<Task | null>(null)
 const showDoneModal = ref(false)
+const showEditGoal = ref(false)
+const categories = ['Health', 'Career', 'Finance', 'Education', 'Personal', 'Other']
+const editGoalForm = reactive({ title: '', description: '', category: '', targetDate: '', isPublic: false, imagePreview: '', imageData: null as string | null })
+const editPicInput = ref<HTMLInputElement | null>(null)
+
+const openEditGoal = () => {
+  if (!goal.value) return
+  editGoalForm.title = goal.value.title
+  editGoalForm.description = goal.value.description || ''
+  editGoalForm.category = goal.value.category
+  editGoalForm.targetDate = new Date(goal.value.targetDate).toISOString().split('T')[0]
+  editGoalForm.isPublic = goal.value.isPublic
+  editGoalForm.imagePreview = goal.value.imageData || ''
+  editGoalForm.imageData = goal.value.imageData || null
+  showEditGoal.value = true
+}
+
+const handleEditPic = (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (ev) => {
+    const result = ev.target?.result as string
+    editGoalForm.imagePreview = result
+    editGoalForm.imageData = result
+  }
+  reader.readAsDataURL(file)
+}
+
+const submitEditGoal = async () => {
+  if (!goal.value) return
+  const updated = await goalStore.updateGoal(goal.value._id, {
+    title: editGoalForm.title,
+    description: editGoalForm.description,
+    category: editGoalForm.category as any,
+    targetDate: editGoalForm.targetDate as any,
+    isPublic: editGoalForm.isPublic,
+    imageData: editGoalForm.imageData,
+  })
+  goal.value = updated
+  showEditGoal.value = false
+}
 const donePhotoPreview = ref('')
 const donePhotoData = ref('')
 const donePublic = ref(false)

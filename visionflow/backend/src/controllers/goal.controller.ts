@@ -50,9 +50,19 @@ export const createGoal = async (req: Request, res: Response): Promise<void> => 
 
 export const updateGoal = async (req: Request, res: Response): Promise<void> => {
   try {
+    const set: Record<string, unknown> = {}
+    const unset: Record<string, 1> = {}
+    for (const [key, val] of Object.entries(req.body)) {
+      if (val === null) unset[key] = 1
+      else set[key] = val
+    }
+    const update: Record<string, unknown> = {}
+    if (Object.keys(set).length) update.$set = set
+    if (Object.keys(unset).length) update.$unset = unset
+
     const goal = await Goal.findOneAndUpdate(
       { _id: req.params.id, user: req.user?.id },
-      req.body,
+      update,
       { new: true, runValidators: true }
     )
     if (!goal) { res.status(404).json({ message: 'Goal not found' }); return }

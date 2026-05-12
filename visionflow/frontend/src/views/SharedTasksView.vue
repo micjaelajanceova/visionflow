@@ -44,21 +44,74 @@
       </div>
     </div>
 
+    <!-- Shared with me -->
+    <div>
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Shared With Me</h2>
+
+      <div v-if="loading" class="text-slate-400 text-sm">Loading…</div>
+
+      <div v-else-if="sharedWithMe.length === 0" class="card text-center text-slate-400 text-sm py-8">
+        No accepted shared tasks
+      </div>
+
+      <div v-else class="space-y-3">
+        <div v-for="task in sharedWithMe" :key="task._id" class="card flex items-start gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-slate-800">{{ task.title }}</p>
+            <p v-if="task.description" class="text-sm text-slate-500 mt-0.5">{{ task.description }}</p>
+            <p class="text-xs text-slate-400 mt-1">
+              From <span class="font-medium text-slate-600">{{ typeof task.user === 'string' ? 'someone' : (task.user as any).username }}</span>
+              <span v-if="task.dueDate"> · {{ formatDate(task.dueDate) }}</span>
+            </p>
+          </div>
+          <button
+            @click="leaveShared(task._id)"
+            :disabled="leaving === task._id"
+            class="btn btn-secondary text-xs py-1.5 px-3 text-red-500 hover:text-red-600 flex-shrink-0"
+          >{{ leaving === task._id ? '…' : 'Leave' }}</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTaskStore } from '../stores/taskStore'
+import { useAuthStore } from '../stores/authStore'
 
 const taskStore = useTaskStore()
+const auth = useAuthStore()
 const loading = ref(true)
 const responding = ref<string | null>(null)
+const leaving = ref<string | null>(null)
 
 onMounted(async () => {
-  await taskStore.fetchPendingInvites()
+  await Promise.all([taskStore.fetchPendingInvites(), taskStore.fetchTasks()])
   loading.value = false
 })
+
+const sharedWithMe = computed(() => {
+  const myId = (auth.user as any)?.id || (auth.user as any)?._id
+  return taskStore.tasks.filter(t => {
+    const ownerId = typeof t.user === 'string' ? t.user : (t.user as any)?._id
+    if (ownerId === myId) return false
+    return (t.participants ?? []).some((p: any) => {
+      const pId = typeof p.userId === 'string' ? p.userId : p.userId?._id
+      return pId === myId && p.accepted
+    })
+  })
+})
+
+const leaveShared = async (taskId: string) => {
+  leaving.value = taskId
+  try {
+    await taskStore.leaveTask(taskId)
+  } finally {
+    leaving.value = null
+  }
+}
 
 const respond = async (taskId: string, accept: boolean) => {
   responding.value = taskId
