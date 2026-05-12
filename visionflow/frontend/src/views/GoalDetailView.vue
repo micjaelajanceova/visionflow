@@ -44,10 +44,14 @@
           </button>
         </div>
         <div v-else class="mt-4 pt-4 border-t border-slate-100">
-          <p class="text-sm text-emerald-600 font-medium mb-2">
-            Completed on {{ goal.doneAt ? formatDate(goal.doneAt) : '' }}
-          </p>
-          <img v-if="goal.donePhoto" :src="goal.donePhoto" class="rounded-xl object-cover" style="max-height:320px;max-width:100%;" />
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <p class="text-sm text-emerald-600 font-medium">
+              Completed on {{ goal.doneAt ? formatDate(goal.doneAt) : '' }}
+            </p>
+            <button @click="undoDone" class="btn btn-secondary text-xs py-1 px-3 text-slate-500">
+              Undo completion
+            </button>
+          </div>
         </div>
       </div>
 
@@ -68,7 +72,7 @@
         </div>
 
         <div v-else class="space-y-3">
-          <div v-for="task in goalTasks" :key="task._id" class="border border-slate-100 rounded-xl p-4">
+          <div v-for="{ task, stats } in goalTasksWithStats" :key="task._id" class="border border-slate-100 rounded-xl p-4">
             <div class="flex items-start justify-between gap-2">
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-slate-800">{{ task.title }}</p>
@@ -88,12 +92,12 @@
               </div>
             </div>
             <div class="mt-3">
-              <div class="flex justify-between text-xs text-slate-500 mb-1">
-                <span>{{ task.completedDates.length }} completed</span>
-                <span>{{ taskProgress(task) }}%</span>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-600">{{ stats.completed }}/{{ stats.total }} days done</span>
+                <span class="font-semibold text-slate-700">{{ stats.percent }}%</span>
               </div>
-              <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-indigo-500 rounded-full transition-all" :style="{ width: taskProgress(task) + '%' }" />
+              <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" :style="{ width: stats.percent + '%' }" />
               </div>
             </div>
           </div>
@@ -191,10 +195,6 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Target date *</label>
             <input v-model="editGoalForm.targetDate" type="date" required class="input" />
           </div>
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input v-model="editGoalForm.isPublic" type="checkbox" class="w-4 h-4 accent-indigo-600" />
-            <span class="text-sm text-slate-700">Show on Explore (public)</span>
-          </label>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Picture</label>
             <div
@@ -229,27 +229,15 @@
           </h2>
           <button @click="showDoneModal = false" class="text-slate-400 hover:text-slate-600 text-2xl bg-transparent border-0 cursor-pointer">×</button>
         </div>
-        <p class="text-sm text-slate-500 mb-4">Celebrate your achievement! Optionally add a photo and share with the community.</p>
+        <p class="text-sm text-slate-500 mb-4">Congratulations! You can share your achievement on the Explore page.</p>
 
-        <div
-          class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:border-indigo-400 transition-all mb-4"
-          @click="donePhotoInput?.click()"
-        >
-          <div v-if="donePhotoPreview">
-            <img :src="donePhotoPreview" class="max-h-36 mx-auto rounded-lg object-cover" />
-          </div>
-          <div v-else class="py-3">
-            <div class="flex justify-center mb-1">
-              <span class="text-slate-300" v-html="icon('camera', 'w-10 h-10')" />
-            </div>
-            <p class="text-sm text-slate-500">Add a celebration photo (optional)</p>
-          </div>
+        <div v-if="goal?.imageData" class="mb-4 rounded-xl overflow-hidden border border-slate-100">
+          <img :src="goal.imageData" class="w-full object-cover" style="max-height:200px;" />
         </div>
-        <input ref="donePhotoInput" type="file" accept="image/*" capture="environment" class="hidden" @change="handleDonePhoto" />
 
         <label class="flex items-center gap-3 cursor-pointer mb-4">
           <input v-model="donePublic" type="checkbox" class="w-4 h-4 accent-indigo-600" />
-          <span class="text-sm text-slate-700">Share publicly on Explore</span>
+          <span class="text-sm text-slate-700">Share on Explore page</span>
         </label>
 
         <div class="flex gap-3">
@@ -321,10 +309,7 @@ const submitEditGoal = async () => {
   goal.value = updated
   showEditGoal.value = false
 }
-const donePhotoPreview = ref('')
-const donePhotoData = ref('')
 const donePublic = ref(false)
-const donePhotoInput = ref<HTMLInputElement | null>(null)
 
 const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -340,6 +325,27 @@ const goalTasks = computed(() =>
   taskStore.tasks.filter(t => t.goal === goal.value?._id || t.goalId === goal.value?._id)
 )
 
+const goalTasksWithStats = computed(() =>
+  goalTasks.value.map(task => {
+    if (!goal.value) return { task, stats: { completed: 0, total: 0, percent: 0 } }
+    const start = task.startDate ? new Date(task.startDate) : new Date(goal.value.createdAt)
+    const end = new Date(goal.value.targetDate)
+    start.setHours(0, 0, 0, 0)
+    end.setHours(0, 0, 0, 0)
+    let total = 0
+    const cur = new Date(start)
+    while (cur <= end) {
+      const day = (cur.getDay() + 6) % 7
+      if (!task.isRecurring || task.recurringDays.includes(day)) total++
+      cur.setDate(cur.getDate() + 1)
+    }
+    if (!task.isRecurring) total = 1
+    const completed = task.isRecurring ? task.completedDates.length : (task.completed ? 1 : 0)
+    const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0
+    return { task, stats: { completed, total, percent } }
+  })
+)
+
 const isOverdue = computed(() => {
   if (!goal.value || goal.value.isDone) return false
   return new Date(goal.value.targetDate) < new Date()
@@ -350,20 +356,6 @@ const daysLeft = computed(() => {
   return Math.abs(Math.ceil((new Date(goal.value.targetDate).getTime() - Date.now()) / 86400000))
 })
 
-const taskProgress = (task: Task) => {
-  if (!goal.value) return 0
-  const start = task.startDate ? new Date(task.startDate) : new Date(goal.value.createdAt)
-  const end = new Date() < new Date(goal.value.targetDate) ? new Date() : new Date(goal.value.targetDate)
-  let total = 0
-  const cur = new Date(start)
-  while (cur <= end) {
-    const day = (cur.getDay() + 6) % 7
-    if (task.recurringDays.includes(day)) total++
-    cur.setDate(cur.getDate() + 1)
-  }
-  if (total === 0) return 0
-  return Math.round((task.completedDates.length / total) * 100)
-}
 
 const toggleDay = (day: number) => {
   const idx = taskForm.recurringDays.indexOf(day)
@@ -417,23 +409,25 @@ const deleteGoalTask = async (id: string) => {
   if (confirm('Delete this task?')) await taskStore.deleteTask(id)
 }
 
-const handleDonePhoto = (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (ev) => {
-    donePhotoData.value = ev.target?.result as string
-    donePhotoPreview.value = ev.target?.result as string
-  }
-  reader.readAsDataURL(file)
-}
 
 const submitDone = async () => {
   if (!goal.value) return
-  await goalStore.markDone(goal.value._id, donePhotoData.value || undefined, donePublic.value)
+  await goalStore.markDone(goal.value._id, goal.value.imageData || undefined, donePublic.value)
   const { data } = await client.get(`/goals/${goal.value._id}`)
   goal.value = data
   showDoneModal.value = false
+}
+
+const undoDone = async () => {
+  if (!goal.value) return
+  if (!confirm('Mark this goal as not completed?')) return
+  const updated = await goalStore.updateGoal(goal.value._id, {
+    isDone: false,
+    doneAt: null,
+    donePhoto: null,
+    isDonePublic: false,
+  } as any)
+  goal.value = updated
 }
 
 const formatDate = (date: string) =>

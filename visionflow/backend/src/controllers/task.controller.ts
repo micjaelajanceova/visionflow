@@ -241,7 +241,7 @@ export const getPublicCompletionPhotos = async (_req: Request, res: Response): P
           photoData: photo.photoData,
           completedCount,
           totalOccurrences,
-          progressPercent: totalOccurrences > 0 ? Math.round((completedCount / totalOccurrences) * 100) : 0,
+          progressPercent: totalOccurrences > 0 ? Math.min(100, Math.round((completedCount / totalOccurrences) * 100)) : 0,
         })
       }
     }
@@ -256,6 +256,8 @@ function countOccurrences(task: any): number {
   if (!task.isRecurring || !task.recurringDays?.length || !task.startDate) return 1
   const start = new Date(task.startDate)
   const end = task.goal?.targetDate ? new Date(task.goal.targetDate) : new Date()
+  start.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
   let count = 0
   const cur = new Date(start)
   while (cur <= end) {
@@ -263,5 +265,5 @@ function countOccurrences(task: any): number {
     if (task.recurringDays.includes(day)) count++
     cur.setDate(cur.getDate() + 1)
   }
-  return count
+  return count || 1
 }

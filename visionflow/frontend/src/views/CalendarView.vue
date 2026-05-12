@@ -108,7 +108,7 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-3 py-2 text-xs text-slate-500 flex-shrink-0">
+        <div class="flex flex-wrap gap-3 py-3 text-xs text-slate-500 flex-shrink-0">
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-600" /> Today</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-indigo-200" /> Goal task</div>
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded bg-sky-200" /> Task</div>

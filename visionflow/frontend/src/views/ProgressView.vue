@@ -24,7 +24,7 @@
         No goals yet — create your first goal!
       </div>
       <div class="space-y-6">
-        <div v-for="goal in goalStore.goals" :key="goal._id">
+        <div v-for="goal in goalStore.goals.filter(g => !g.isDone)" :key="goal._id">
           <!-- Goal header -->
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2 min-w-0">
