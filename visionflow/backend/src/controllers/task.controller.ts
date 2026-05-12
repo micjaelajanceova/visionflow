@@ -241,6 +241,7 @@ export const getPublicCompletionPhotos = async (_req: Request, res: Response): P
           photoData: photo.photoData,
           completedCount,
           totalOccurrences,
+          goalId: task.goal ? String((task.goal as any)._id) : undefined,
           progressPercent: totalOccurrences > 0 ? Math.min(100, Math.round((completedCount / totalOccurrences) * 100)) : 0,
         })
       }

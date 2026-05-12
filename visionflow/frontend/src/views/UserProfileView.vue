@@ -33,7 +33,9 @@
         <div
           v-for="goal in profile.goals"
           :key="'goal-' + goal._id"
-          class="break-inside-avoid mb-4 group cursor-pointer rounded-xl overflow-hidden relative"
+          class="break-inside-avoid mb-4 group rounded-xl overflow-hidden relative"
+          :class="isOwnProfile ? 'cursor-pointer' : 'cursor-default'"
+          @click="handleGoalClick(goal)"
         >
           <div v-if="goal.donePhoto || goal.imageData" class="relative overflow-hidden">
             <img
@@ -70,7 +72,9 @@
         <div
           v-for="post in profile.posts"
           :key="'post-' + post.taskId + post.date"
-          class="break-inside-avoid mb-4 group cursor-pointer rounded-xl overflow-hidden relative"
+          class="break-inside-avoid mb-4 group rounded-xl overflow-hidden relative"
+          :class="isOwnProfile && post.goalId ? 'cursor-pointer' : 'cursor-default'"
+          @click="handlePostClick(post)"
         >
           <div class="relative overflow-hidden">
             <img
@@ -97,17 +101,21 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import client from '../api/client'
 import { icon } from '../utils/icons'
+import { useAuthStore } from '../stores/authStore'
 
 const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 const loading = ref(true)
 
 interface Post {
   taskId: string
   taskTitle: string
   goal?: { title: string; category: string }
+  goalId?: string
   date: string
   photoData: string
   completedCount: number
@@ -131,6 +139,19 @@ interface Profile {
 
 const profile = ref<Profile | null>(null)
 const allItems = computed(() => [...(profile.value?.goals ?? []), ...(profile.value?.posts ?? [])])
+
+const isOwnProfile = computed(() =>
+  !!authStore.user?.id && !!profile.value?.user.id &&
+  String(authStore.user.id) === String(profile.value.user.id)
+)
+
+const handleGoalClick = (goal: GoalItem) => {
+  if (isOwnProfile.value) router.push(`/goals/${goal._id}`)
+}
+
+const handlePostClick = (post: Post) => {
+  if (isOwnProfile.value && post.goalId) router.push(`/goals/${post.goalId}`)
+}
 
 onMounted(async () => {
   try {

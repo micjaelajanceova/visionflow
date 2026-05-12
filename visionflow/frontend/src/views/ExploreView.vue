@@ -29,7 +29,9 @@
         <div
           v-for="goal in doneGoals"
           :key="'goal-' + goal._id"
-          class="break-inside-avoid mb-4 group cursor-pointer rounded-xl overflow-hidden relative"
+          class="break-inside-avoid mb-4 group rounded-xl overflow-hidden relative"
+          :class="isMyId((goal.user as any)?._id) ? 'cursor-pointer' : 'cursor-default'"
+          @click="handleGoalClick(goal)"
         >
           <!-- With image: text overlay -->
           <div v-if="goal.donePhoto || goal.imageData" class="relative overflow-hidden">
@@ -74,7 +76,9 @@
         <div
           v-for="photo in taskPhotos"
           :key="'task-' + photo.taskId + photo.date"
-          class="break-inside-avoid mb-4 group cursor-pointer rounded-xl overflow-hidden relative"
+          class="break-inside-avoid mb-4 group rounded-xl overflow-hidden relative"
+          :class="isMyId(photo.userId) && photo.goalId ? 'cursor-pointer' : 'cursor-default'"
+          @click="handlePhotoClick(photo)"
         >
           <div class="relative overflow-hidden">
             <img
@@ -103,18 +107,32 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import client from '../api/client'
 import type { Goal } from '../types/Goal'
 import { icon } from '../utils/icons'
+import { useAuthStore } from '../stores/authStore'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const loading = ref(false)
 const doneGoals = ref<Goal[]>([])
 
 interface TaskPhoto {
-  taskId: string; taskTitle: string; goalTitle?: string
+  taskId: string; taskTitle: string; goalTitle?: string; goalId?: string
   userId: string; username: string; date: string; photoData: string; progressPercent: number
 }
 const taskPhotos = ref<TaskPhoto[]>([])
+
+const isMyId = (id: unknown) => !!authStore.user?.id && String(id) === String(authStore.user.id)
+
+const handleGoalClick = (goal: Goal) => {
+  if (isMyId((goal.user as any)?._id)) router.push(`/goals/${goal._id}`)
+}
+
+const handlePhotoClick = (photo: TaskPhoto) => {
+  if (isMyId(photo.userId) && photo.goalId) router.push(`/goals/${photo.goalId}`)
+}
 
 const allItems = computed(() => [...doneGoals.value, ...taskPhotos.value])
 
@@ -144,6 +162,7 @@ onMounted(async () => {
       taskId: p.taskId,
       taskTitle: p.taskTitle,
       goalTitle: p.goal?.title,
+      goalId: p.goalId,
       userId: p.user?._id || '',
       username: p.user?.username || '',
       date: p.date,

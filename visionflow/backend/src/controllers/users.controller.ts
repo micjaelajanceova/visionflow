@@ -47,6 +47,7 @@ export const getUserPublicProfile = async (req: Request, res: Response): Promise
           photoData: photo.photoData,
           completedCount,
           totalOccurrences,
+          goalId: task.goal ? String((task.goal as any)._id) : undefined,
           progressPercent,
         })
       }
