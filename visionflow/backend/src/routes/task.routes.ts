@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getTasks, createTask, updateTask, deleteTask, leaveTask, completeTaskDate, skipTaskDate, toggleSubTaskDate, updateDateSubTasks, getPublicCompletionPhotos, getPendingInvites, inviteToTask, respondToInvite } from '../controllers/task.controller'
+import { getTasks, createTask, updateTask, deleteTask, leaveTask, removeParticipant, completeTaskDate, skipTaskDate, toggleSubTaskDate, updateDateSubTasks, getPublicCompletionPhotos, getPendingInvites, inviteToTask, respondToInvite } from '../controllers/task.controller'
 import { protect } from '../middleware/auth.middleware'
 
 const router = Router()

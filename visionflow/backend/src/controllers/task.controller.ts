@@ -208,6 +208,19 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
   }
 }
 
+export const removeParticipant = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const task = await Task.findOne({ _id: req.params.id, user: req.user!.id })
+    if (!task) { res.status(404).json({ message: 'Task not found' }); return }
+    task.participants = task.participants.filter(p => !p.userId.equals(req.params.userId))
+    task.markModified('participants')
+    await task.save()
+    res.json(task)
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error })
+  }
+}
+
 export const leaveTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id
