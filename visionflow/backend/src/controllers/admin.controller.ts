@@ -13,7 +13,7 @@ export const deleteTaskPhoto = async (req: Request, res: Response): Promise<void
     await task.save()
     res.json({ message: 'Photo deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -27,7 +27,7 @@ export const deleteGoalPhoto = async (req: Request, res: Response): Promise<void
     if (!goal) { res.status(404).json({ message: 'Goal not found' }); return }
     res.json({ message: 'Photo deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -42,7 +42,7 @@ export const setUserBlocked = async (req: Request, res: Response): Promise<void>
     if (!user) { res.status(404).json({ message: 'User not found' }); return }
     res.json({ message: blocked ? 'User blocked' : 'User unblocked', user })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -51,6 +51,6 @@ export const getUsers = async (_req: Request, res: Response): Promise<void> => {
     const users = await User.find().select('-password').sort({ createdAt: -1 })
     res.json(users)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }

@@ -24,7 +24,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.isAdmin },
     })
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
 
@@ -48,7 +48,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.isAdmin },
     })
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
 
@@ -61,7 +61,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     }
     res.json(user)
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
 
@@ -96,7 +96,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     res.json({ id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl })
   } catch (error) {
     console.error('updateProfile error:', error)
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }
 
@@ -125,6 +125,6 @@ export const updatePassword = async (req: Request, res: Response): Promise<void>
 
     res.json({ message: 'password updated' })
   } catch (error) {
-    res.status(500).json({ message: 'something went wrong', error })
+    res.status(500).json({ message: 'something went wrong' })
   }
 }

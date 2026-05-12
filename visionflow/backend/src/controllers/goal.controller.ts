@@ -7,7 +7,7 @@ export const getGoals = async (req: Request, res: Response): Promise<void> => {
     const goals = await Goal.find({ user: req.user?.id }).sort({ createdAt: -1 })
     res.json(goals)
   } catch (error) {
-    res.status(500).json({ message: 'could not load goals', error })
+    res.status(500).json({ message: 'could not load goals' })
   }
 }
 
@@ -16,7 +16,7 @@ export const getPublicGoals = async (_req: Request, res: Response): Promise<void
     const goals = await Goal.find({ isPublic: true }).populate('user', 'username').sort({ createdAt: -1 })
     res.json(goals)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -25,7 +25,7 @@ export const getPublicDoneGoals = async (_req: Request, res: Response): Promise<
     const goals = await Goal.find({ isDonePublic: true, isDone: true }).populate('user', 'username').sort({ doneAt: -1 })
     res.json(goals)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -35,16 +35,24 @@ export const getGoalById = async (req: Request, res: Response): Promise<void> =>
     if (!goal) { res.status(404).json({ message: 'Goal not found' }); return }
     res.json(goal)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
+const GOAL_LIMIT = 100
+
 export const createGoal = async (req: Request, res: Response): Promise<void> => {
   try {
-    const goal = await Goal.create({ ...req.body, user: req.user?.id })
+    const count = await Goal.countDocuments({ user: req.user?.id })
+    if (count >= GOAL_LIMIT) {
+      res.status(429).json({ message: `Goal limit reached (max ${GOAL_LIMIT}).` })
+      return
+    }
+    const { user: _u, isAdmin: _a, isBlocked: _b, ...safeBody } = req.body
+    const goal = await Goal.create({ ...safeBody, user: req.user?.id })
     res.status(201).json(goal)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -68,7 +76,7 @@ export const updateGoal = async (req: Request, res: Response): Promise<void> => 
     if (!goal) { res.status(404).json({ message: 'Goal not found' }); return }
     res.json(goal)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -83,7 +91,7 @@ export const markGoalDone = async (req: Request, res: Response): Promise<void> =
     if (!goal) { res.status(404).json({ message: 'Goal not found' }); return }
     res.json(goal)
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 
@@ -95,6 +103,6 @@ export const deleteGoal = async (req: Request, res: Response): Promise<void> => 
     await Task.deleteMany({ goal: goal._id, user: req.user?.id })
     res.json({ message: 'goal deleted' })
   } catch (error) {
-    res.status(500).json({ message: 'could not delete goal', error })
+    res.status(500).json({ message: 'could not delete goal' })
   }
 }
