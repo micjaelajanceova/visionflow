@@ -4,6 +4,22 @@ import Task from '../models/Task'
 import Goal from '../models/Goal'
 import mongoose from 'mongoose'
 
+function countOccurrences(task: any): number {
+  if (!task.isRecurring || !task.recurringDays?.length || !task.startDate) return 1
+  const start = new Date(task.startDate)
+  const end = task.goal?.targetDate ? new Date(task.goal.targetDate) : new Date()
+  start.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+  let count = 0
+  const cur = new Date(start)
+  while (cur <= end) {
+    const day = (cur.getDay() + 6) % 7
+    if (task.recurringDays.includes(day)) count++
+    cur.setDate(cur.getDate() + 1)
+  }
+  return count || 1
+}
+
 export const getUserPublicProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -15,10 +31,13 @@ export const getUserPublicProfile = async (req: Request, res: Response): Promise
     if (!user) { res.status(404).json({ message: 'User not found' }); return }
 
     const tasks = await Task.find({ user: id, 'completionPhotos.isPublic': true })
-      .populate('goal', 'title category')
+      .populate('goal', 'title category targetDate')
 
     const posts: any[] = []
     for (const task of tasks) {
+      const totalOccurrences = countOccurrences(task)
+      const completedCount = task.completedDates.length
+      const progressPercent = totalOccurrences > 0 ? Math.min(100, Math.round((completedCount / totalOccurrences) * 100)) : 0
       for (const photo of task.completionPhotos.filter(p => p.isPublic)) {
         posts.push({
           taskId: task._id,
@@ -26,8 +45,9 @@ export const getUserPublicProfile = async (req: Request, res: Response): Promise
           goal: task.goal,
           date: photo.date,
           photoData: photo.photoData,
-          completedCount: task.completedDates.length,
-          totalOccurrences: task.isRecurring ? task.completedDates.length + 1 : 1,
+          completedCount,
+          totalOccurrences,
+          progressPercent,
         })
       }
     }

@@ -80,8 +80,8 @@
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
             <div class="absolute bottom-0 left-0 right-0 p-3">
-              <span class="inline-block text-xs font-semibold text-white bg-indigo-500/90 px-2 py-0.5 rounded-full mb-1">
-                📈 {{ post.completedCount }}x completed
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-white bg-indigo-500/90 px-2 py-0.5 rounded-full mb-1">
+                <span v-html="icon('progress', 'w-3 h-3')" />{{ post.progressPercent }}%
               </span>
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ post.taskTitle }}</p>
               <p v-if="post.goal?.title" class="text-xs text-white/60 mt-0.5 truncate">{{ post.goal.title }}</p>
@@ -99,6 +99,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import client from '../api/client'
+import { icon } from '../utils/icons'
 
 const route = useRoute()
 const loading = ref(true)
@@ -110,6 +111,7 @@ interface Post {
   date: string
   photoData: string
   completedCount: number
+  progressPercent: number
 }
 
 interface GoalItem {

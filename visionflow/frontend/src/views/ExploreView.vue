@@ -84,8 +84,8 @@
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
             <div class="absolute bottom-0 left-0 right-0 p-3">
-              <span class="inline-block text-xs font-semibold text-white bg-indigo-500/90 px-2 py-0.5 rounded-full mb-1">
-                📈 {{ photo.progressPercent }}%
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-white bg-indigo-500/90 px-2 py-0.5 rounded-full mb-1">
+                <span v-html="icon('progress', 'w-3 h-3')" />{{ photo.progressPercent }}%
               </span>
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ photo.taskTitle }}</p>
               <p v-if="photo.goalTitle" class="text-xs text-white/60 mt-0.5 truncate">{{ photo.goalTitle }}</p>
