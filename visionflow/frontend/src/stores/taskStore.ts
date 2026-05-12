@@ -60,6 +60,12 @@ export const useTaskStore = defineStore('tasks', () => {
     tasks.value = tasks.value.filter(t => t._id !== id)
   }
 
+  const removeParticipant = async (taskId: string, userId: string) => {
+    const { data } = await client.delete<Task>(`/tasks/${taskId}/participants/${userId}`)
+    const index = tasks.value.findIndex(t => t._id === taskId)
+    if (index !== -1) tasks.value[index] = data
+  }
+
   const getTasksForDate = (dateStr: string): Task[] => {
     return tasks.value.filter(t => {
       if (t.isRecurring) {
@@ -159,5 +165,5 @@ export const useTaskStore = defineStore('tasks', () => {
     if (accept) await fetchTasks()
   }
 
-  return { tasks, loading, pendingInvites, fetchTasks, fetchPendingInvites, inviteToTask, respondToInvite, createTask, updateTask, toggleTask, completeDateTask, skipDateTask, deleteTask, leaveTask, getTasksForDate, isDateCompleted, toggleSubTask, toggleSubTaskForDate, getSubTaskStateForDate, getDateSubTasks, addDateSubTaskItem, toggleDateSubTaskItem, removeDateSubTaskItem }
+  return { tasks, loading, pendingInvites, fetchTasks, fetchPendingInvites, inviteToTask, respondToInvite, removeParticipant, createTask, updateTask, toggleTask, completeDateTask, skipDateTask, deleteTask, leaveTask, getTasksForDate, isDateCompleted, toggleSubTask, toggleSubTaskForDate, getSubTaskStateForDate, getDateSubTasks, addDateSubTaskItem, toggleDateSubTaskItem, removeDateSubTaskItem }
 })

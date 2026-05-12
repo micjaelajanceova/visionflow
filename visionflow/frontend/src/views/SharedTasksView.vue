@@ -44,6 +44,43 @@
       </div>
     </div>
 
+    <!-- Shared with others -->
+    <div class="mb-8">
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Shared With Others</h2>
+
+      <div v-if="loading" class="text-slate-400 text-sm">Loading…</div>
+
+      <div v-else-if="sharedWithOthers.length === 0" class="card text-center text-slate-400 text-sm py-8">
+        No tasks shared with others
+      </div>
+
+      <div v-else class="space-y-3">
+        <div v-for="task in sharedWithOthers" :key="task._id" class="card">
+          <p class="font-semibold text-slate-800 mb-3">{{ task.title }}</p>
+          <div class="space-y-2">
+            <div
+              v-for="p in task.acceptedParticipants"
+              :key="p.userId"
+              class="flex items-center justify-between gap-2"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <img v-if="p.avatarUrl" :src="p.avatarUrl" class="w-full h-full object-cover" />
+                  <span v-else class="text-xs font-bold text-indigo-600">{{ p.username?.[0]?.toUpperCase() || '?' }}</span>
+                </div>
+                <span class="text-sm text-slate-700 truncate">{{ p.username || p.email }}</span>
+              </div>
+              <button
+                @click="removeParticipantFromTask(task._id, p.userId)"
+                :disabled="removing === task._id + p.userId"
+                class="btn btn-secondary text-xs py-1 px-3 text-red-500 hover:text-red-600 flex-shrink-0"
+              >{{ removing === task._id + p.userId ? '…' : 'Remove' }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Shared with me -->
     <div>
       <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Shared With Me</h2>
@@ -86,10 +123,32 @@ const auth = useAuthStore()
 const loading = ref(true)
 const responding = ref<string | null>(null)
 const leaving = ref<string | null>(null)
+const removing = ref<string | null>(null)
 
 onMounted(async () => {
   await Promise.all([taskStore.fetchPendingInvites(), taskStore.fetchTasks()])
   loading.value = false
+})
+
+const sharedWithOthers = computed(() => {
+  const myId = (auth.user as any)?.id || (auth.user as any)?._id
+  return taskStore.tasks
+    .filter(t => {
+      const ownerId = typeof t.user === 'string' ? t.user : (t.user as any)?._id
+      return String(ownerId) === String(myId) &&
+        (t.participants ?? []).some((p: any) => p.accepted)
+    })
+    .map(t => ({
+      ...t,
+      acceptedParticipants: (t.participants ?? [])
+        .filter((p: any) => p.accepted)
+        .map((p: any) => ({
+          userId: typeof p.userId === 'string' ? p.userId : p.userId?._id,
+          username: p.userId?.username || null,
+          avatarUrl: p.userId?.avatarUrl || null,
+          email: p.email,
+        })),
+    }))
 })
 
 const sharedWithMe = computed(() => {
@@ -103,6 +162,15 @@ const sharedWithMe = computed(() => {
     })
   })
 })
+
+const removeParticipantFromTask = async (taskId: string, userId: string) => {
+  removing.value = taskId + userId
+  try {
+    await taskStore.removeParticipant(taskId, userId)
+  } finally {
+    removing.value = null
+  }
+}
 
 const leaveShared = async (taskId: string) => {
   leaving.value = taskId

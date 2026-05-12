@@ -330,5 +330,6 @@ router.post('/:id/date-subtasks', updateDateSubTasks)
  */
 router.delete('/:id', deleteTask)
 router.delete('/:id/leave', leaveTask)
+router.delete('/:id/participants/:userId', removeParticipant)
 
 export default router
