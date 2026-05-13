@@ -17,8 +17,11 @@ connectDB()
 
 const app = express()
 
-app.use(helmet())
 
+app.use(helmet()) // sets HTTP security headers automatically (prevents clickjacking, XSS, etc.)
+
+
+// allows the frontend (different port) to talk to the backend
 app.use(cors({
   origin: [
     'http://localhost:5173',
@@ -48,7 +51,7 @@ const apiLimiter = rateLimit({
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ limit: '5mb', extended: true }))
 
-// Strip $ and . from keys to prevent NoSQL injection
+// Strip $ and . from keys (cleans user input to prevent NoSQL injection)
 app.use(mongoSanitize())
 
 app.use('/api/auth', authLimiter, authRoutes)
@@ -56,6 +59,7 @@ app.use('/api/goals', apiLimiter, goalRoutes)
 app.use('/api/tasks', apiLimiter, taskRoutes)
 app.use('/api/users', apiLimiter, usersRoutes)
 app.use('/api/admin', apiLimiter, adminRoutes)
+
 
 setupSwagger(app)
 const PORT = process.env.PORT || 5000

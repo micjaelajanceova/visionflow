@@ -6,6 +6,7 @@ interface JwtPayload {
   email: string
 }
 
+// checks that the user has a valid JWT token and attaches user info to the request object
 export const protect = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization
 

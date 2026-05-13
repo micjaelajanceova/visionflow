@@ -19,6 +19,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = await User.create({ username, email, password })
+    // password is hashed automatically by the pre-save hook in User model
     res.status(201).json({
       token: generateToken(user._id.toString(), user.email),
       user: { id: user._id, username: user.username, email: user.email, avatarUrl: user.avatarUrl, isAdmin: user.isAdmin },
@@ -54,6 +55,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+
+// get current user profile
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.user?.id).select('-password')
@@ -67,6 +70,8 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+
+// update username and/or avatar
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, avatarUrl } = req.body
@@ -79,6 +84,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         return
       }
     }
+
 
     const updates: Record<string, unknown> = {}
     if (username) updates.username = username
@@ -102,6 +108,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
   }
 }
 
+// update password
 export const updatePassword = async (req: Request, res: Response): Promise<void> => {
   try {
     const { currentPassword, newPassword } = req.body

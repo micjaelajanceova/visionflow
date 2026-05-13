@@ -78,7 +78,7 @@
               </div>
             </div>
 
-            <!-- Spanning range task bars -->
+            <!-- task range bars -->
             <div
               v-for="(bar, bi) in getRangeBarsForWeek(week.days)"
               :key="bar.task._id + '-' + wi"

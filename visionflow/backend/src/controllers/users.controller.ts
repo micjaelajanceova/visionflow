@@ -5,6 +5,7 @@ import Goal from '../models/Goal'
 import mongoose from 'mongoose'
 import { countOccurrences } from '../utils/taskUtils'
 
+// GET /api/users/:id/profile — returns public profile info for a user, including their recent public posts (completion photos) and completed goals
 export const getUserPublicProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params

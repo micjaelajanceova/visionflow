@@ -1,3 +1,4 @@
+// Reusable progress bar that can be used for tasks or goals
 <template>
   <div>
     <div class="flex justify-between text-xs mb-0.5">
@@ -16,13 +17,7 @@
 </template>
 
 <script setup lang="ts">
-/**
- * Reusable progress bar.
- * - label: text shown on the left
- * - percentage: 0–100
- * - colorClass: Tailwind bg class (e.g. 'bg-indigo-500') — defaults to indigo
- * - subtext: optional small text shown below the bar (e.g. "2/5 days done")
- */
+
 defineProps<{
   label: string
   percentage: number

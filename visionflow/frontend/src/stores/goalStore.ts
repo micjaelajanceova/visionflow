@@ -4,12 +4,7 @@ import client from '../api/client'
 import type { Goal } from '../types/Goal'
 import { useTaskStore } from './taskStore'
 
-/**
- * Pinia store for managing goals.
- * Holds the logged-in user's goals, public goals for Explore, and
- * publicly completed goals. All API calls go through this store
- * so components stay in sync automatically.
- */
+// Manages goal-related state and actions (fetching, creating, updating, deleting goals)
 export const useGoalStore = defineStore('goals', () => {
   const goals = ref<Goal[]>([])              // current user's goals
   const publicGoals = ref<Goal[]>([])        // all public goals (Explore)

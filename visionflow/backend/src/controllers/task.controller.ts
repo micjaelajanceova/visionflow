@@ -65,6 +65,7 @@ export const inviteToTask = async (req: Request, res: Response): Promise<void> =
   }
 }
 
+// POST /api/tasks/:id/respond-invite — accepts or declines a pending task invite
 export const respondToInvite = async (req: Request, res: Response): Promise<void> => {
   try {
     const { accept } = req.body
@@ -91,8 +92,10 @@ export const respondToInvite = async (req: Request, res: Response): Promise<void
   }
 }
 
+// Limit total tasks per user to prevent abuse and performance issues
 const TASK_LIMIT = 500
 
+// POST /api/tasks — creates a new task owned by the logged-in user
 export const createTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const count = await Task.countDocuments({ user: req.user?.id })
@@ -108,6 +111,8 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
   }
 }
 
+
+// PUT /api/tasks/:id — updates a task (only owner or accepted participants can update)
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id
@@ -128,6 +133,7 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
   }
 }
 
+// POST /api/tasks/:id/complete-date — marks a specific date as completed for the task, with optional photo and public visibility
 export const completeTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, photoData, isPublic } = req.body
@@ -156,6 +162,7 @@ export const completeTaskDate = async (req: Request, res: Response): Promise<voi
   }
 }
 
+// POST /api/tasks/:id/update-date-subtasks — updates the list of subtasks for a specific date
 export const updateDateSubTasks = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, items } = req.body
@@ -175,6 +182,7 @@ export const updateDateSubTasks = async (req: Request, res: Response): Promise<v
   }
 }
 
+// POST /api/tasks/:id/toggle-date-subtask — toggles a specific subtask as completed for a specific date
 export const toggleSubTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date, subIndex } = req.body
@@ -196,6 +204,7 @@ export const toggleSubTaskDate = async (req: Request, res: Response): Promise<vo
   }
 }
 
+// POST /api/tasks/:id/skip-date — toggles a date as skipped (not expected to be completed) for the task
 export const skipTaskDate = async (req: Request, res: Response): Promise<void> => {
   try {
     const { date } = req.body
@@ -213,6 +222,7 @@ export const skipTaskDate = async (req: Request, res: Response): Promise<void> =
   }
 }
 
+// DELETE /api/tasks/:id — deletes a task (only owner can delete)
 export const deleteTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user?.id })
@@ -223,6 +233,7 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
   }
 }
 
+// POST /api/tasks/:id/remove-participant/:userId — removes a participant from a task (only owner can remove)
 export const removeParticipant = async (req: Request, res: Response): Promise<void> => {
   try {
     const task = await Task.findOne({ _id: req.params.id, user: req.user!.id })
@@ -236,6 +247,7 @@ export const removeParticipant = async (req: Request, res: Response): Promise<vo
   }
 }
 
+// POST /api/tasks/:id/leave — allows a participant to leave a shared task (removes them from participants list)
 export const leaveTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id
@@ -251,6 +263,7 @@ export const leaveTask = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+// GET /api/tasks/public-completion-photos — returns recent completion photos that users have marked as public, along with task and user info
 export const getPublicCompletionPhotos = async (_req: Request, res: Response): Promise<void> => {
   try {
     const tasks = await Task.find({ 'completionPhotos.isPublic': true }).populate('user', 'username').populate('goal', 'title category targetDate')

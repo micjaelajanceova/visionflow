@@ -10,11 +10,7 @@ interface User {
   isAdmin?: boolean
 }
 
-/**
- * Pinia store for authentication state.
- * User and token are persisted in localStorage so the session
- * survives page refreshes without requiring a new login.
- */
+// Manages user authentication pinia state and actions (login, logout, register, fetch profile, update profile)
 export const useAuthStore = defineStore('auth', () => {
   // Restore session from localStorage on app startup
   const stored = localStorage.getItem('user')
