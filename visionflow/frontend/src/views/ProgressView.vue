@@ -21,7 +21,7 @@
     <div class="card mb-6">
       <h2 class="font-semibold text-slate-900 mb-4">Goal Progress</h2>
       <div v-if="activeGoals.length === 0" class="text-center py-6 text-slate-400 text-sm">
-        No active goals — create your first goal!
+        No active goals - create your first goal!
       </div>
       <div class="space-y-6">
         <div v-for="goal in activeGoals" :key="goal._id">
@@ -165,6 +165,7 @@ const goalTaskStats = (goal: Goal) => {
       if (!task.isRecurring || task.recurringDays.includes(day)) total++
       cur.setDate(cur.getDate() + 1)
     }
+    // Count how many of those days are completed
     if (!task.isRecurring) total = 1
     const completed = task.isRecurring ? task.completedDates.length : (task.completed ? 1 : 0)
     const percent = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0

@@ -143,6 +143,7 @@ const form = reactive({
 watch(() => props.show, (visible) => {
   if (!visible) return
   const t = props.task
+  // If no task, initialize with defaults.
   if (!t) {
     form.title = ''
     form.description = ''
@@ -155,7 +156,9 @@ watch(() => props.show, (visible) => {
     form.endTime = ''
     form.subTasks = []
     form.moveToDate = ''
-  } else {
+  } 
+  // If editing an existing task, pre-fill with its values. 
+  else {
     form.title = t.title
     form.description = t.description || ''
     if (!t.isRecurring && !t.dueDate && t.startDate && t.endDate) {
@@ -163,7 +166,9 @@ watch(() => props.show, (visible) => {
       form.dateFrom = t.startDate.split('T')[0]
       form.dateTo = t.endDate.split('T')[0]
       form.dueDate = ''
-    } else {
+    } 
+    // For recurring tasks or tasks with a due date, use single date mode with dueDate.
+    else {
       form.dateMode = 'single'
       form.dueDate = t.dueDate ? new Date(t.dueDate).toISOString().split('T')[0] : ''
       form.dateFrom = ''
@@ -179,10 +184,10 @@ watch(() => props.show, (visible) => {
 
 const addSubTask = () => form.subTasks.push({ title: '', completed: false })
 const removeSubTask = (i: number) => form.subTasks.splice(i, 1)
-
 const submitTask = async () => {
   const subTasks = form.subTasks.filter(s => s.title.trim())
   if (props.task) {
+    // If it's a recurring task and the user chose to move this occurrence to a different date, we need to skip this date in the recurring series and create a new one-off task for the moved occurrence
     if (props.task.isRecurring && form.moveToDate && props.fromDate && form.moveToDate !== props.fromDate) {
       await taskStore.skipDateTask(props.task._id, props.fromDate)
       await taskStore.createTask({
@@ -196,7 +201,8 @@ const submitTask = async () => {
         subTasks,
       })
       emit('navigate-to', form.moveToDate)
-    } else {
+    } 
+    else {
       const patch: Partial<Task> = {
         title: form.title,
         description: form.description,
@@ -205,6 +211,7 @@ const submitTask = async () => {
         endTime: form.isAllDay ? undefined : (form.endTime || undefined),
         subTasks,
       }
+      // Only allow changing dates for non-recurring tasks, or if the recurring task doesn't have fixed dates (i.e. it uses dueDate instead of start/end)
       if (!props.task.isRecurring) {
         if (form.dateMode === 'range') {
           patch.startDate = form.dateFrom as any
@@ -218,7 +225,8 @@ const submitTask = async () => {
       }
       await taskStore.updateTask(props.task._id, patch)
     }
-  } else {
+  } 
+  else {
     const newTask: Partial<Task> = {
       title: form.title,
       description: form.description,

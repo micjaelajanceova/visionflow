@@ -20,6 +20,7 @@
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium" :class="isDone ? 'line-through text-slate-400' : 'text-slate-800'">
           {{ task.title }}
+          <!-- Show time if it's not an all-day task -->
           <span v-if="task.time && !task.isAllDay" class="text-xs text-slate-400 ml-1">
             {{ task.time }}{{ task.endTime ? ' – ' + task.endTime : '' }}
           </span>
@@ -28,6 +29,7 @@
         <p v-if="task.description" class="text-xs text-slate-500 mt-0.5">{{ task.description }}</p>
         <span v-if="task.isRecurring" class="text-xs text-indigo-400">&#8635; recurring</span>
         <div v-if="isShared(task)" class="flex items-center gap-0.5 mt-1">
+          <!-- Show avatars of people the task is shared with, with hover tooltip of their name. Clicking avatar goes to their profile if they have a userId, otherwise does nothing. -->
           <router-link
             v-for="p in getSharedWith(task)" :key="p.username"
             :to="p.userId ? `/users/${p.userId}` : '#'"
@@ -43,7 +45,7 @@
           </router-link>
         </div>
       </div>
-
+      <!-- Edit, share and delete buttons (only show delete if user is owner and task is not recurring, otherwise show "Leave" button for shared tasks) -->
       <div class="flex gap-1 flex-shrink-0">
         <button @click.stop="emit('edit')" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" v-html="icon('pencil', 'w-3.5 h-3.5')" />
         <button v-if="amIOwner" @click.stop="toggleShare" class="text-slate-300 hover:text-indigo-500 bg-transparent border-0 cursor-pointer" title="Share task" v-html="icon('share', 'w-3.5 h-3.5')" />
@@ -77,6 +79,7 @@
     <div v-if="task.isRecurring" class="px-3 pb-2 border-t border-slate-50 pt-2">
       <p class="text-xs text-slate-400 mb-1.5">Checklist for this day</p>
       <div class="space-y-1 mb-1.5">
+        <!-- List subtask items for this date, allow toggling and removing them -->
         <div v-for="(item, si) in taskStore.getDateSubTasks(task, date)" :key="si"
           class="flex items-center gap-2 group/item">
           <input type="checkbox" :checked="item.completed"
@@ -176,6 +179,7 @@ const amIOwner = computed(() => {
 const isDone = computed(() => taskStore.isDateCompleted(props.task, props.date))
 
 const todayStr = new Date().toISOString().split('T')[0]
+// Determine if the task is overdue (only if it has a due date or end date, and is not recurring and not done)
 const isTaskOverdue = computed(() => {
   if (props.task.isRecurring || isDone.value) return false
   if (props.task.dueDate) return new Date(props.task.dueDate).toISOString().split('T')[0] < todayStr
@@ -255,6 +259,7 @@ const triggerPhotoInput = () => {
   (document.getElementById('photo-' + props.task._id) as HTMLInputElement | null)?.click()
 }
 
+// Handle photo file input change, create preview and store data for upload
 const handlePhotoUpload = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return

@@ -18,7 +18,6 @@
         <div v-if="taskStore.pendingInvites.length === 0" class="card text-center text-slate-400 text-sm py-8">
           No pending invites
         </div>
-
         <div v-else class="space-y-3">
           <div v-for="task in taskStore.pendingInvites" :key="task._id" class="card flex items-start gap-4">
             <div class="flex-1 min-w-0">
@@ -160,6 +159,7 @@ const sharedWithMe = computed(() =>
   })
 )
 
+// Remove a participant from a task I own
 const removeParticipantFromTask = async (taskId: string, userId: string) => {
   removing.value = taskId + userId
   try {
@@ -169,6 +169,7 @@ const removeParticipantFromTask = async (taskId: string, userId: string) => {
   }
 }
 
+// Leave a shared task that I have accepted
 const leaveShared = async (taskId: string) => {
   leaving.value = taskId
   try {
@@ -178,6 +179,7 @@ const leaveShared = async (taskId: string) => {
   }
 }
 
+// Accept or decline an invite to a task
 const respond = async (taskId: string, accept: boolean) => {
   responding.value = taskId
   try {

@@ -22,6 +22,7 @@
       <router-link to="/goals" class="btn btn-primary">Go to Goals</router-link>
     </div>
 
+    
     <div v-else-if="goalsWithImages.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
         <span class="text-indigo-200" v-html="icon('board', 'w-20 h-20')" />
@@ -153,7 +154,7 @@ const closeAddPicture = () => {
   // Reset input so selecting the same file again triggers @change
   if (picInput.value) picInput.value.value = ''
 }
-
+// Load file and create preview
 const loadFile = (file: File) => {
   if (!file.type.startsWith('image/')) return
   const reader = new FileReader()
@@ -164,17 +165,19 @@ const loadFile = (file: File) => {
   }
   reader.readAsDataURL(file)
 }
-
+// Handle file input change
 const handlePicUpload = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) loadFile(file)
 }
 
+// Handle drag & drop file
 const handlePicDrop = (e: DragEvent) => {
   const file = e.dataTransfer?.files?.[0]
   if (file) loadFile(file)
 }
 
+// Save the selected picture to the goal
 const savePicture = async () => {
   if (!picGoalId.value || !picData.value) return
   saving.value = true
@@ -185,7 +188,7 @@ const savePicture = async () => {
     saving.value = false
   }
 }
-
+// Remove image from goal without deleting the goal itself
 const removeImage = async (goalId: string) => {
   if (confirm('Remove this picture from the board?')) {
     await goalStore.updateGoal(goalId, { imageData: null } as any)

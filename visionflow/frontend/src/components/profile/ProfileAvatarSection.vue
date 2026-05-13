@@ -50,6 +50,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
+// Handle file input change, validate and create preview
 const onFileChange = async (e: Event) => {
   error.value = ''
   success.value = ''
@@ -80,6 +81,7 @@ const resizeImage = (file: File): Promise<string> =>
     reader.readAsDataURL(file)
   })
 
+// Reset to original avatar and clear file input
 const cancel = () => {
   avatarPreview.value = auth.user?.avatarUrl ?? null
   changed.value = false
@@ -87,6 +89,7 @@ const cancel = () => {
   if (fileInput.value) fileInput.value.value = ''
 }
 
+// Save new avatar URL to user profile via auth store
 const save = async () => {
   loading.value = true; error.value = ''; success.value = ''
   try {
@@ -99,7 +102,7 @@ const save = async () => {
     loading.value = false
   }
 }
-
+// Remove avatar by setting URL to null in user profile
 const removeAvatar = async () => {
   loading.value = true; error.value = ''; success.value = ''
   try {

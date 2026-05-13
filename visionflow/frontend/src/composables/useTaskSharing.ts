@@ -10,17 +10,20 @@ export interface SharedPerson {
 export function useTaskSharing() {
   const auth = useAuthStore()
 
+  // Helper to resolve a user ID from either a string or a TaskUser object
   function resolveId(val: string | TaskUser | unknown): string {
     if (!val) return ''
     if (typeof val === 'string') return val
     return (val as TaskUser)._id ?? String(val)
   }
 
+  // Get the current user's ID from the auth store
   function currentUserId(): string {
     const u = auth.user as any
     return u?.id || u?._id || ''
   }
 
+  // Determine if the task is shared with others and the current user is either the owner or an accepted participant
   function isShared(task: Task): boolean {
     const myId = currentUserId()
     if (!myId) return false
@@ -31,6 +34,7 @@ export function useTaskSharing() {
     return task.participants?.some(p => resolveId(p.userId) === myId && p.accepted) ?? false
   }
 
+  // Get a list of people the task is shared with, including the owner and accepted participants.
   function getSharedWith(task: Task): SharedPerson[] {
     const people: SharedPerson[] = []
     const seen = new Set<string>()

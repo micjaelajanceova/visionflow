@@ -35,6 +35,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
+// Validate and submit password change request, handle success and error states
 const save = async () => {
   error.value = ''; success.value = ''
   if (newPassword.value !== confirmPassword.value) {

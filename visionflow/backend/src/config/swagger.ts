@@ -7,9 +7,9 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'LifeBoard API',
+      title: 'VisionFlow API',
       version: '1.0.0',
-      description: 'LifeBoard - Goal tracking, vision board, and task management REST API',
+      description: 'VisionFlow - Goal tracking, vision board, and task management REST API',
     },
     components: {
       securitySchemes: {

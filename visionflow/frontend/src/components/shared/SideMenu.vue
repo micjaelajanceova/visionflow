@@ -71,6 +71,7 @@
         @click="menuOpen = false"
         class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-indigo-50 transition-all group mb-1"
       >
+      <!-- Avatar with fallback to first letter of username -->
         <div class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden bg-indigo-100 flex items-center justify-center ring-1 ring-indigo-200">
           <img v-if="auth.user.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
           <span v-else class="text-sm font-bold text-indigo-500 select-none">

@@ -39,6 +39,7 @@
         <router-link to="/calendar" class="text-xs text-red-500 hover:underline font-medium">View in calendar →</router-link>
       </div>
       <div class="divide-y divide-slate-50">
+        <!-- List each overdue task with how many days it's overdue -->
         <div v-for="task in overdueTasks" :key="task._id"
           class="flex items-center gap-3 px-5 py-2.5 hover:bg-red-50/50 transition-all">
           <div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />

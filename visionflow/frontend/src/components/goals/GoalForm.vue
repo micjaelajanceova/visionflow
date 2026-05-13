@@ -126,6 +126,7 @@
             <button type="button" @click="taskForm.isAllDay = false" class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
               :class="!taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500'">Specific time</button>
           </div>
+          <!-- Show time input if "Specific time" is selected -->
           <input v-if="!taskForm.isAllDay" v-model="taskForm.time" type="time" class="input mt-2" />
         </div>
 
@@ -185,6 +186,7 @@ const clearImage = () => {
   if (imageInput.value) imageInput.value.value = ''
 }
 
+// Load selected image file and convert to base64 for preview and storage
 const loadImageFile = (file: File) => {
   if (!file.type.startsWith('image/')) return
   const reader = new FileReader()
@@ -222,7 +224,7 @@ const submitGoal = async (goToTask: boolean) => {
     emit('done')
   }
 }
-
+// Toggle selection of a recurring day for the task
 const toggleDay = (day: number) => {
   const idx = taskForm.recurringDays.indexOf(day)
   if (idx === -1) taskForm.recurringDays.push(day)
@@ -255,7 +257,7 @@ const goToStep2 = () => {
 }
 
 const handleClose = () => emit('close')
-
+// If editing an existing goal, pre-fill the form with its current values
 watch(() => props.editingGoal, (goal) => {
   if (!goal) return
   form.title = goal.title

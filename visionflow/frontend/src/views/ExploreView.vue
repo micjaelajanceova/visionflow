@@ -152,9 +152,9 @@ const taskPhotos = ref<TaskPhoto[]>([])
 
 const isAdmin = computed(() => !!authStore.user?.isAdmin)
 const blockedUserIds = ref<Set<string>>(new Set())
-
+// Check if user is blocked
 const isBlocked = (userId: string) => blockedUserIds.value.has(userId)
-
+// Admin actions to delete photos and block/unblock users
 const adminDeleteTaskPhoto = async (taskId: string, date: string) => {
   if (!confirm('Delete this photo from Explore?')) return
   await client.delete(`/admin/tasks/${taskId}/photo/${date}`)
@@ -188,6 +188,7 @@ const handlePhotoClick = (photo: TaskPhoto) => {
 
 const allItems = computed(() => [...doneGoals.value, ...taskPhotos.value])
 
+// Fetch public goals and task photos on mount, also fetch all users if admin to determine blocked users
 onMounted(async () => {
   loading.value = true
   try {

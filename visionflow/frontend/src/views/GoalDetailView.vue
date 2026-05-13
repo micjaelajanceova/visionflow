@@ -15,6 +15,7 @@
             <span v-if="goal.isPublic" class="badge bg-emerald-100 text-emerald-700 flex items-center gap-1">
               <span v-html="icon('explore', 'w-3 h-3')" />Public
             </span>
+            <!-- Show "Completed" badge if done, otherwise show "Overdue" badge if past target date -->
             <span v-if="goal.isDone" class="badge bg-emerald-100 text-emerald-700 font-semibold flex items-center gap-1">
               <span v-html="icon('checkCircle', 'w-3 h-3')" />Completed!
             </span>

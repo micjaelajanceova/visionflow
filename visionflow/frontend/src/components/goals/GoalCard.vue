@@ -3,9 +3,12 @@
     <!-- Category colour stripe at the top -->
     <div class="h-1.5 w-full" :class="catColor(goal.category)" />
 
+
     <div class="p-5 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-3">
         <span class="badge" :class="catBadge(goal.category)">{{ goal.category }}</span>
+        
+        <!-- Show "Done" badge if the goal is completed -->
         <span v-if="goal.isDone" class="badge bg-emerald-100 text-emerald-700 flex items-center gap-1">
           <span v-html="icon('checkCircle', 'w-3 h-3')" />Done
         </span>

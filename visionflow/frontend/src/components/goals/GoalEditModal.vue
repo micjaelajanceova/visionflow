@@ -65,7 +65,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useGoalStore } from '../../stores/goalStore'
 import type { Goal } from '../../types/Goal'
-
+// Props for the goal being edited and available categories
 const props = defineProps<{
   goal: Goal
   categories: string[]
@@ -113,6 +113,7 @@ const handlePic = (e: Event) => {
   reader.readAsDataURL(file)
 }
 
+// Submit updated goal data to the store and emit the saved event
 const submit = async () => {
   const updated = await goalStore.updateGoal(props.goal._id, {
     title: form.title,

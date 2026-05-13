@@ -14,12 +14,10 @@
         </div>
       </div>
 
-      <!-- Empty -->
       <div v-if="allItems.length === 0" class="text-center py-16 text-slate-400">
         No public posts yet.
       </div>
 
-      <!-- Masonry grid — same as Explore -->
       <div v-else class="columns-2 sm:columns-3 lg:columns-4 gap-4">
 
         <!-- Completed goals -->
@@ -151,6 +149,7 @@ const handlePostClick = (post: UserProfilePost) => {
   if (isOwnProfile.value && post.goalId) router.push(`/goals/${post.goalId}`)
 }
 
+// Admin actions to delete photos and block/unblock users
 const adminDeleteGoalPhoto = async (goalId: string) => {
   if (!confirm('Delete this photo from Explore?')) return
   await client.delete(`/admin/goals/${goalId}/photo`)
@@ -175,6 +174,7 @@ const adminToggleBlock = async () => {
   await client.put(`/admin/users/${userId}/block`, { blocked: shouldBlock })
   isProfileUserBlocked.value = shouldBlock
 }
+
 
 onMounted(async () => {
   try {

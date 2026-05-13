@@ -23,7 +23,7 @@
     </div>
 
     <LoadingSpinner v-if="goalStore.loading" />
-
+    
     <div v-else-if="filteredGoals.length === 0" class="text-center py-20">
       <div class="flex justify-center mb-4">
         <span class="text-indigo-200" v-html="icon('goals', 'w-16 h-16')" />
@@ -32,7 +32,7 @@
       <p class="text-slate-400 mb-6">Start by creating your first goal</p>
       <button @click="showForm = true" class="btn-primary btn">+ New Goal</button>
     </div>
-
+    <!-- Show message if no goals match the selected category filter -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <GoalCard
         v-for="goal in filteredGoals"
@@ -63,6 +63,7 @@ const showForm = ref(false)
 const filterCategory = ref('')
 const categories = ['Health', 'Career', 'Finance', 'Education', 'Personal', 'Other']
 
+// Compute the list of goals to display based on the selected category filter
 const filteredGoals = computed(() =>
   filterCategory.value
     ? goalStore.goals.filter(g => g.category === filterCategory.value)

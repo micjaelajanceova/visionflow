@@ -30,7 +30,7 @@
           <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
           <input v-model="password" type="password" placeholder="••••••••" required class="input" />
         </div>
-
+        
         <p v-if="error" class="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-2">{{ error }}</p>
 
         <button type="submit" :disabled="loading" class="btn-primary btn w-full text-base py-3 mt-2">
@@ -58,6 +58,8 @@ const loading = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
 
+
+// Handle form submission for user login, manage loading and error states
 const handleLogin = async () => {
   error.value = ''
   loading.value = true

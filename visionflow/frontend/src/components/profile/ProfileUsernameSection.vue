@@ -25,6 +25,7 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
+// Submit username update request, handle success and error states
 const save = async () => {
   loading.value = true; error.value = ''; success.value = ''
   try {
