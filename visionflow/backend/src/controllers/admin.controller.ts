@@ -3,6 +3,7 @@ import Task from '../models/Task'
 import Goal from '../models/Goal'
 import User from '../models/User'
 
+// delete task completion photo by date in explore/user profile pages
 export const deleteTaskPhoto = async (req: Request, res: Response): Promise<void> => {
   try {
     const { taskId, date } = req.params
@@ -17,6 +18,7 @@ export const deleteTaskPhoto = async (req: Request, res: Response): Promise<void
   }
 }
 
+// delete goal done photo in explore/user profile pages
 export const deleteGoalPhoto = async (req: Request, res: Response): Promise<void> => {
   try {
     const goal = await Goal.findByIdAndUpdate(
@@ -31,6 +33,8 @@ export const deleteGoalPhoto = async (req: Request, res: Response): Promise<void
   }
 }
 
+
+// block or unblock user
 export const setUserBlocked = async (req: Request, res: Response): Promise<void> => {
   try {
     const { blocked } = req.body
@@ -46,6 +50,8 @@ export const setUserBlocked = async (req: Request, res: Response): Promise<void>
   }
 }
 
+
+// get all users (admin only)
 export const getUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 })

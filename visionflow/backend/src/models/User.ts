@@ -1,17 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
+import type { IUser } from '../interfaces/IUser'
 
-export interface IUser extends Document {
-  _id: mongoose.Types.ObjectId
-  username: string
-  email: string
-  password: string
-  avatarUrl?: string
-  isAdmin: boolean
-  isBlocked: boolean
-  createdAt: Date
-  comparePassword(candidatePassword: string): Promise<boolean>
-}
+export type { IUser } from '../interfaces/IUser'
 
 const UserSchema = new Schema<IUser>(
   {

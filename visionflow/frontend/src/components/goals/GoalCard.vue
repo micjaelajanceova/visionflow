@@ -1,10 +1,11 @@
 <template>
   <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col">
-    <div class="h-1.5 w-full" :class="categoryColor" />
+    <!-- Category colour stripe at the top -->
+    <div class="h-1.5 w-full" :class="catColor(goal.category)" />
 
     <div class="p-5 flex flex-col flex-1">
       <div class="flex flex-wrap gap-1.5 mb-3">
-        <span class="badge" :class="categoryBadge">{{ goal.category }}</span>
+        <span class="badge" :class="catBadge(goal.category)">{{ goal.category }}</span>
         <span v-if="goal.isDone" class="badge bg-emerald-100 text-emerald-700 flex items-center gap-1">
           <span v-html="icon('checkCircle', 'w-3 h-3')" />Done
         </span>
@@ -30,23 +31,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { Goal } from '../../types/Goal'
 import { icon } from '../../utils/icons'
+import { formatDate } from '../../utils/dateUtils'
+import { useCategoryColors } from '../../composables/useCategoryColors'
 
-const props = defineProps<{ goal: Goal }>()
-defineEmits<{ edit: [goal: Goal]; delete: [id: string] }>()
+defineProps<{ goal: Goal }>()
+defineEmits<{ delete: [id: string] }>()
 
-const formatDate = (date: string) => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-
-const categoryColor = computed(() => ({
-  Health: 'bg-emerald-400', Career: 'bg-indigo-400', Finance: 'bg-yellow-400',
-  Education: 'bg-purple-400', Personal: 'bg-pink-400', Other: 'bg-slate-300',
-}[props.goal.category] || 'bg-slate-300'))
-
-const categoryBadge = computed(() => ({
-  Health: 'bg-emerald-100 text-emerald-700', Career: 'bg-indigo-100 text-indigo-700',
-  Finance: 'bg-yellow-100 text-yellow-700', Education: 'bg-purple-100 text-purple-700',
-  Personal: 'bg-pink-100 text-pink-700', Other: 'bg-slate-100 text-slate-600',
-}[props.goal.category] || 'bg-slate-100 text-slate-600'))
+const { catColor, catBadge } = useCategoryColors()
 </script>

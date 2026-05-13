@@ -10,13 +10,21 @@ interface User {
   isAdmin?: boolean
 }
 
+/**
+ * Pinia store for authentication state.
+ * User and token are persisted in localStorage so the session
+ * survives page refreshes without requiring a new login.
+ */
 export const useAuthStore = defineStore('auth', () => {
+  // Restore session from localStorage on app startup
   const stored = localStorage.getItem('user')
   const user = ref<User | null>(stored ? JSON.parse(stored) : null)
   const token = ref<string | null>(localStorage.getItem('token'))
 
+  // True when a valid JWT token exists
   const isAuthenticated = computed(() => !!token.value)
 
+  // Persist user data to both reactive state and localStorage
   const saveUser = (u: User) => {
     user.value = u
     localStorage.setItem('user', JSON.stringify(u))
@@ -43,12 +51,13 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('user')
   }
 
+  // Fetch fresh user data from the server (called on app mount to verify token is still valid)
   const fetchMe = async () => {
     try {
       const { data } = await client.get('/auth/me')
       saveUser(data)
     } catch {
-      logout()
+      logout() // token expired or invalid — clear session
     }
   }
 

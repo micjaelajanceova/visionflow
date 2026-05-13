@@ -5,7 +5,7 @@
       Progress
     </h1>
 
-    <!-- Stats -->
+    <!-- Quick stats -->
     <div class="grid grid-cols-2 gap-4 mb-8 max-w-sm">
       <div class="card text-center">
         <div class="text-3xl font-bold text-indigo-600">{{ goalStore.goals.length }}</div>
@@ -17,47 +17,42 @@
       </div>
     </div>
 
-    <!-- Per-goal progress -->
+    <!-- Active goal progress — completed goals are hidden -->
     <div class="card mb-6">
       <h2 class="font-semibold text-slate-900 mb-4">Goal Progress</h2>
-      <div v-if="goalStore.goals.length === 0" class="text-center py-6 text-slate-400 text-sm">
-        No goals yet — create your first goal!
+      <div v-if="activeGoals.length === 0" class="text-center py-6 text-slate-400 text-sm">
+        No active goals — create your first goal!
       </div>
       <div class="space-y-6">
-        <div v-for="goal in goalStore.goals.filter(g => !g.isDone)" :key="goal._id">
-          <!-- Goal header -->
+        <div v-for="goal in activeGoals" :key="goal._id">
+          <!-- Goal header row -->
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2 min-w-0">
               <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" :class="catDot(goal.category)" />
               <router-link :to="`/goals/${goal._id}`" class="text-sm font-semibold text-slate-800 hover:text-indigo-600 truncate">
                 {{ goal.title }}
               </router-link>
-              <span v-if="goal.isDone" class="text-emerald-500 flex-shrink-0" v-html="icon('checkCircle', 'w-3.5 h-3.5')" />
             </div>
             <span class="text-xs text-slate-400 flex-shrink-0 ml-2">{{ formatDate(goal.targetDate) }}</span>
           </div>
 
           <!-- Per-task progress bars -->
           <div v-if="goalTaskStats(goal).length > 0" class="space-y-2 pl-4">
-            <div v-for="stat in goalTaskStats(goal)" :key="stat.taskId">
-              <div class="flex justify-between text-xs mb-0.5">
-                <span class="text-slate-600 truncate mr-2">{{ stat.title }}</span>
-                <span class="font-semibold text-slate-700 flex-shrink-0">{{ stat.percent }}%</span>
-              </div>
-              <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-500"
-                  :class="goal.isDone ? 'bg-emerald-500' : catBar(goal.category)"
-                  :style="{ width: stat.percent + '%' }" />
-              </div>
-              <p class="text-xs text-slate-400 mt-0.5">{{ stat.completed }}/{{ stat.total }} days done</p>
-            </div>
+            <ProgressBar
+              v-for="stat in goalTaskStats(goal)"
+              :key="stat.taskId"
+              :label="stat.title"
+              :percentage="stat.percent"
+              :color-class="catBar(goal.category)"
+              :subtext="`${stat.completed}/${stat.total} days done`"
+            />
           </div>
           <div v-else class="pl-4 text-xs text-slate-400 italic">No tasks added yet</div>
         </div>
       </div>
     </div>
 
-    <!-- Goal completion photos -->
+    <!-- Completion photos gallery -->
     <div class="card mb-6">
       <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-slate-900 flex items-center gap-2">
@@ -74,7 +69,7 @@
       <div v-else class="columns-2 sm:columns-3 gap-3 space-y-3">
         <div v-for="goal in donePhotos" :key="goal._id"
           class="break-inside-avoid mb-3 overflow-hidden border border-slate-100 shadow-sm rounded-xl">
-          <img :src="goal.donePhoto" class="w-full object-cover block" style="max-height:400px;max-width:100%;" />
+          <img :src="goal.donePhoto" class="w-full object-cover block" style="max-height:400px;" />
           <div class="p-2 bg-white">
             <p class="text-xs font-semibold text-slate-700 truncate">{{ goal.title }}</p>
             <div class="flex items-center justify-between mt-0.5">
@@ -88,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Task progress photos -->
+    <!-- Task completion photos -->
     <div class="card">
       <div class="flex items-center justify-between mb-4">
         <h2 class="font-semibold text-slate-900 flex items-center gap-2">
@@ -105,7 +100,7 @@
       <div v-else class="columns-2 sm:columns-3 gap-3 space-y-3">
         <div v-for="photo in taskPhotos" :key="photo.taskId + photo.date"
           class="break-inside-avoid mb-3 overflow-hidden border border-slate-100 shadow-sm rounded-xl">
-          <img :src="photo.photoData" class="w-full object-cover block" style="max-height:400px;max-width:100%;" />
+          <img :src="photo.photoData" class="w-full object-cover block" style="max-height:400px;" />
           <div class="p-2 bg-white">
             <p class="text-xs font-semibold text-slate-700 truncate">{{ photo.taskTitle }}</p>
             <div class="flex items-center justify-between mt-0.5">
@@ -127,17 +122,24 @@ import { useGoalStore } from '../stores/goalStore'
 import { useTaskStore } from '../stores/taskStore'
 import type { Goal } from '../types/Goal'
 import { icon } from '../utils/icons'
+import { formatDate } from '../utils/dateUtils'
+import { useCategoryColors } from '../composables/useCategoryColors'
+import ProgressBar from '../components/ProgressBar.vue'
 
 const goalStore = useGoalStore()
 const taskStore = useTaskStore()
+const { catDot, catBar } = useCategoryColors()
 
-const doneGoals = computed(() => goalStore.goals.filter(g => g.isDone).length)
+const doneGoals  = computed(() => goalStore.goals.filter(g => g.isDone).length)
 const donePhotos = computed(() => goalStore.goals.filter(g => g.isDone && g.donePhoto))
+
+// Active goals only — completed ones are hidden on this page
+const activeGoals = computed<Goal[]>(() => goalStore.goals.filter(g => !g.isDone))
 
 interface TaskPhoto { taskId: string; taskTitle: string; date: string; photoData: string; isPublic: boolean }
 const taskPhotos = ref<TaskPhoto[]>([])
 
-const loadTaskPhotos = async () => {
+const loadTaskPhotos = () => {
   const allPhotos: TaskPhoto[] = []
   for (const task of taskStore.tasks) {
     for (const p of task.completionPhotos || []) {
@@ -148,6 +150,7 @@ const loadTaskPhotos = async () => {
   taskPhotos.value = allPhotos
 }
 
+// Calculates completion stats per task for a given goal
 const goalTaskStats = (goal: Goal) => {
   const tasks = taskStore.tasks.filter(t => t.goal === goal._id || t.goalId === goal._id)
   return tasks.map(task => {
@@ -158,7 +161,7 @@ const goalTaskStats = (goal: Goal) => {
     let total = 0
     const cur = new Date(start)
     while (cur <= end) {
-      const day = (cur.getDay() + 6) % 7
+      const day = (cur.getDay() + 6) % 7 // Mon=0 ... Sun=6
       if (!task.isRecurring || task.recurringDays.includes(day)) total++
       cur.setDate(cur.getDate() + 1)
     }
@@ -168,19 +171,6 @@ const goalTaskStats = (goal: Goal) => {
     return { taskId: task._id, title: task.title, completed, total, percent }
   })
 }
-
-const catDot = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
-  Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
-}[cat] || 'bg-slate-400')
-
-const catBar = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
-  Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
-}[cat] || 'bg-indigo-500')
-
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
 onMounted(async () => {
   await Promise.all([goalStore.fetchGoals(), taskStore.fetchTasks()])

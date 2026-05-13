@@ -1,65 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
+import type { ITask, ICompletionPhoto, ISubTask, IDateSubTaskState } from '../interfaces/ITask'
 
-export type TaskPriority = 'low' | 'medium' | 'high'
-
-export interface ICompletionPhoto {
-  date: string
-  photoData: string
-  isPublic: boolean
-}
-
-export interface ISubTask {
-  title: string
-  completed: boolean
-}
-
-export interface IDateSubTaskState {
-  date: string
-  states: boolean[]
-}
-
-export interface IDateSubTaskItem {
-  title: string
-  completed: boolean
-}
-
-export interface IDateSubTasks {
-  date: string
-  items: IDateSubTaskItem[]
-}
-
-export interface IParticipant {
-  userId: mongoose.Types.ObjectId
-  email: string
-  accepted: boolean
-}
-
-export interface ITask extends Document {
-  _id: mongoose.Types.ObjectId
-  user: mongoose.Types.ObjectId
-  participants: IParticipant[]
-  goal?: mongoose.Types.ObjectId
-  title: string
-  description: string
-  isAllDay: boolean
-  time?: string
-  endTime?: string
-  isRecurring: boolean
-  recurringDays: number[]
-  startDate?: Date
-  endDate?: Date
-  dueDate?: Date
-  completed: boolean
-  priority: TaskPriority
-  subTasks: ISubTask[]
-  completedDates: string[]
-  skippedDates: string[]
-  dateSubTaskStates: IDateSubTaskState[]
-  dateSubTasks: IDateSubTasks[]
-  completionPhotos: ICompletionPhoto[]
-  createdAt: Date
-  updatedAt: Date
-}
+export type { ITask, ICompletionPhoto, ISubTask, IDateSubTaskState } from '../interfaces/ITask'
+export type { IDateSubTaskItem, IDateSubTasks, IParticipant } from '../interfaces/ITask'
 
 const CompletionPhotoSchema = new Schema<ICompletionPhoto>({
   date: { type: String, required: true },
@@ -98,7 +41,6 @@ const TaskSchema = new Schema<ITask>(
     endDate: { type: Date },
     dueDate: { type: Date },
     completed: { type: Boolean, default: false },
-    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     subTasks: [SubTaskSchema],
     completedDates: [{ type: String }],
     skippedDates: [{ type: String }],

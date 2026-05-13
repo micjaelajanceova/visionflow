@@ -14,7 +14,7 @@
         <div class="card p-0 overflow-hidden lg:flex-1 lg:flex lg:flex-col lg:min-h-0">
           <div class="flex items-center justify-between px-6 py-3 border-b border-slate-100 flex-shrink-0">
             <button @click="prevMonth" class="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-0 cursor-pointer text-slate-500 text-xl">&#8249;</button>
-            <h2 class="font-semibold text-slate-900 text-lg">{{ monthName }} {{ year }}</h2>
+            <h2 class="font-semibold text-slate-900 text-lg">{{ monthName }} {{ currentYear }}</h2>
             <button @click="nextMonth" class="p-2 rounded-lg hover:bg-slate-100 bg-transparent border-0 cursor-pointer text-slate-500 text-xl">&#8250;</button>
           </div>
 
@@ -140,7 +140,7 @@
             >
               <div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
               <span class="text-sm text-slate-700 flex-1 truncate">{{ task.title }}</span>
-              <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task) }}d</span>
+              <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task.dueDate || task.endDate || '') }}d</span>
             </div>
           </div>
         </div>
@@ -206,24 +206,39 @@ import { useGoalStore } from '../stores/goalStore'
 import { useTaskStore } from '../stores/taskStore'
 import type { Task } from '../types/Task'
 import { icon } from '../utils/icons'
+import { daysOverdue } from '../utils/dateUtils'
+import { useCategoryColors } from '../composables/useCategoryColors'
 import TaskCard from '../components/tasks/TaskCard.vue'
 import TaskEditModal from '../components/tasks/TaskEditModal.vue'
 import { useTaskSharing } from '../composables/useTaskSharing'
 
+// Category dot colour for goal deadline markers on calendar cells
+const { catDot: goalDot } = useCategoryColors()
+
 const goalStore = useGoalStore()
 const taskStore = useTaskStore()
+// Composable that exposes helpers for shared/collaborative tasks
 const { getSharedWith, isShared } = useTaskSharing()
+
+// ─── State ────────────────────────────────────────────────────────────────────
 
 const today = new Date()
 const currentMonth = ref(today.getMonth())
 const currentYear = ref(today.getFullYear())
+
+// Formats a Date to YYYY-MM-DD without timezone conversion issues
 const toLocalDateStr = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
+const todayStr = toLocalDateStr(today)
+
+// The date the user clicked — drives the sidebar task list
 const selectedDate = ref<string | null>(toLocalDateStr(today))
 const showTaskModal = ref(false)
 const editingTask = ref<Task | null>(null)
 const editingFromDate = ref<string | null>(null)
+
+// ─── Task modal ───────────────────────────────────────────────────────────────
 
 const openAddTask = () => {
   editingTask.value = null
@@ -243,10 +258,11 @@ const closeTaskModal = () => {
   editingFromDate.value = null
 }
 
-// Drag-and-drop
+// ─── Drag-and-drop ────────────────────────────────────────────────────────────
+
 const draggingTask = ref<Task | null>(null)
 const draggingFromDate = ref<string | null>(null)
-const dragOverDate = ref<string | null>(null)
+const dragOverDate = ref<string | null>(null) // highlights the drop target cell
 
 const startDrag = (task: Task, fromDate: string, e: DragEvent) => {
   draggingTask.value = task
@@ -263,9 +279,11 @@ const handleDrop = async (toDate: string) => {
   }
   const task = draggingTask.value
   if (!task.isRecurring) {
+    // Simple task: just move the due date
     await taskStore.updateTask(task._id, { dueDate: toDate })
     if (selectedDate.value === draggingFromDate.value) selectedDate.value = toDate
   } else {
+    // Recurring task: skip the dragged occurrence and create a one-off copy on the target date
     await taskStore.skipDateTask(task._id, draggingFromDate.value!)
     await taskStore.createTask({
       title: task.title,
@@ -283,16 +301,17 @@ const handleDrop = async (toDate: string) => {
   draggingFromDate.value = null
 }
 
-// Calendar grid
+// ─── Calendar grid ────────────────────────────────────────────────────────────
+
 const dayHeaders = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-const year = computed(() => currentYear.value)
 const monthName = computed(() =>
   new Date(currentYear.value, currentMonth.value).toLocaleString('en-US', { month: 'long' })
 )
 
+// Builds the flat list of day cells — empty cells at the start so Mon is always column 0
 const calendarDays = computed(() => {
   const firstDay = new Date(currentYear.value, currentMonth.value, 1).getDay()
-  const mondayOffset = (firstDay + 6) % 7
+  const mondayOffset = (firstDay + 6) % 7 // convert Sun=0 to Mon=0
   const daysInMonth = new Date(currentYear.value, currentMonth.value + 1, 0).getDate()
   const days: { day: number | null; date: string; isToday: boolean }[] = []
   for (let i = 0; i < mondayOffset; i++) days.push({ day: null, date: `empty-${i}`, isToday: false })
@@ -309,11 +328,13 @@ const calendarDays = computed(() => {
 
 const selectDay = (date: string) => { selectedDate.value = date }
 
+// Returns goals whose target date falls on the given calendar cell (shown as coloured dots)
 const getGoalsForDay = (day: { day: number | null; date: string }) => {
   if (!day.day) return []
   return goalStore.goals.filter(g => toLocalDateStr(new Date(g.targetDate)) === day.date)
 }
 
+// Tasks and goal deadlines shown in the sidebar for the selected day
 const dayTasks = computed(() => selectedDate.value ? taskStore.getTasksForDate(selectedDate.value) : [])
 const dayGoals = computed(() => selectedDate.value ? getGoalsForDay({ day: 1, date: selectedDate.value }) : [])
 
@@ -329,14 +350,18 @@ const formatSelectedDate = (date: string) => {
   return new Date(y, m - 1, d).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-const goalDot = (cat: string) => ({
-  Health: 'bg-emerald-500', Career: 'bg-indigo-500', Finance: 'bg-yellow-500',
-  Education: 'bg-purple-500', Personal: 'bg-pink-500', Other: 'bg-slate-400',
-}[cat] || 'bg-slate-400')
+// Returns the last index in arr where fn(element) is true
+function lastIndex<T>(arr: T[], fn: (item: T) => boolean): number {
+  for (let i = arr.length - 1; i >= 0; i--) if (fn(arr[i])) return i
+  return -1
+}
+
+// ─── Range task bars ──────────────────────────────────────────────────────────
 
 type CalendarDay = { day: number | null; date: string; isToday: boolean }
 type RangeBar = { task: Task; startCol: number; span: number; done: boolean; label: string; startsThisWeek: boolean; endsThisWeek: boolean }
 
+// Groups the flat day list into rows of 7 for the grid template
 const calendarWeeks = computed(() => {
   const days = calendarDays.value
   const weeks: { days: CalendarDay[] }[] = []
@@ -344,6 +369,7 @@ const calendarWeeks = computed(() => {
   return weeks
 })
 
+// A range task spans multiple days (startDate + endDate, no dueDate, not recurring)
 function isRangeTask(task: Task): boolean {
   return !task.isRecurring && !task.dueDate && !!task.startDate && !!task.endDate
 }
@@ -352,6 +378,8 @@ function getNonRangeTasksForDate(date: string): Task[] {
   return taskStore.getTasksForDate(date).filter(t => !isRangeTask(t))
 }
 
+// Calculates visual bar data for range tasks visible in a given week row.
+// Returns position info (startCol, span) so bars can be absolutely positioned over the grid.
 function getRangeBarsForWeek(weekDays: CalendarDay[]): RangeBar[] {
   const realDays = weekDays.filter(d => d.day !== null)
   if (realDays.length === 0) return []
@@ -360,17 +388,13 @@ function getRangeBarsForWeek(weekDays: CalendarDay[]): RangeBar[] {
 
   return taskStore.tasks
     .filter(t => isRangeTask(t) && t.startDate!.split('T')[0] <= weekEnd && t.endDate!.split('T')[0] >= weekStart)
-    .slice(0, 3)
+    .slice(0, 3) // max 3 bars per row to prevent overflow
     .map(t => {
       const taskStart = t.startDate!.split('T')[0]
       const taskEnd = t.endDate!.split('T')[0]
       const startsThisWeek = taskStart >= weekStart
       const endsThisWeek = taskEnd <= weekEnd
       const startCol = startsThisWeek ? weekDays.findIndex(d => d.date === taskStart) : weekDays.findIndex(d => d.day !== null)
-      const lastIndex = (arr: CalendarDay[], fn: (d: CalendarDay) => boolean) => {
-        for (let i = arr.length - 1; i >= 0; i--) if (fn(arr[i])) return i
-        return -1
-      }
       const endCol = endsThisWeek
         ? lastIndex(weekDays, d => d.date === taskEnd)
         : lastIndex(weekDays, d => d.day !== null)
@@ -380,7 +404,7 @@ function getRangeBarsForWeek(weekDays: CalendarDay[]): RangeBar[] {
         startCol,
         span,
         done: taskStore.isDateCompleted(t, weekDays[startCol].date),
-        label: startsThisWeek ? t.title : `↩ ${t.title}`,
+        label: startsThisWeek ? t.title : `↩ ${t.title}`, // ↩ means bar continues from a previous week
         startsThisWeek,
         endsThisWeek,
       }
@@ -395,10 +419,11 @@ function getRangeTaskCountForDay(date: string): number {
   ).length
 }
 
-const todayStr = toLocalDateStr(today)
+// ─── Overdue tasks ────────────────────────────────────────────────────────────
 
 const overdueOpen = ref(true)
 
+// Non-recurring tasks whose due/end date has already passed
 const overdueTasks = computed(() =>
   taskStore.tasks.filter(t => {
     if (t.isRecurring || t.completed) return false
@@ -408,13 +433,7 @@ const overdueTasks = computed(() =>
   })
 )
 
-function daysOverdue(task: Task): number {
-  const dueStr = task.dueDate
-    ? new Date(task.dueDate).toISOString().split('T')[0]
-    : task.endDate!.split('T')[0]
-  return Math.floor((new Date(todayStr).getTime() - new Date(dueStr).getTime()) / 86400000)
-}
-
+// Returns the due date string of a task (used to navigate the calendar to that date on click)
 function taskDueStr(task: Task): string {
   if (task.dueDate) return new Date(task.dueDate).toISOString().split('T')[0]
   if (task.endDate) return task.endDate.split('T')[0]
@@ -429,6 +448,7 @@ function isOverdue(task: Task, dateStr: string): boolean {
   return false
 }
 
+// Limits how many task chips show per cell — range bars take priority, chips fill remaining space
 function getDayDisplayInfo(date: string): { chipsLimit: number; moreCount: number } {
   const rangeShown = Math.min(3, getRangeTaskCountForDay(date))
   const chipsLimit = Math.max(0, 3 - rangeShown)

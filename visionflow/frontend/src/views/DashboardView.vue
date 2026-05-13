@@ -2,12 +2,7 @@
   <div class="max-w-6xl mx-auto px-4 sm:px-0 py-8">
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-slate-900 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-indigo-100 flex items-center justify-center ring-2 ring-indigo-200">
-          <img v-if="auth.user?.avatarUrl" :src="auth.user.avatarUrl" class="w-full h-full object-cover" alt="avatar" />
-          <span v-else class="text-base font-bold text-indigo-500 select-none">
-            {{ auth.user?.username?.[0]?.toUpperCase() }}
-          </span>
-        </div>
+        <UserAvatar :user="auth.user" size="sm" />
         Welcome back, <span class="text-indigo-600">{{ auth.user?.username }}</span>
       </h1>
       <p class="text-slate-500 mt-1">Here's what's going on with your goals today.</p>
@@ -16,7 +11,7 @@
     <!-- Stats -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
       <div class="card text-center">
-        <div class="text-3xl font-bold text-indigo-600">{{ goalStore.goals.length }}</div>
+        <div class="text-3xl font-bold text-indigo-600">{{ goalStore.goals.filter(g => !g.isDone).length }}</div>
         <div class="text-sm text-slate-500 mt-1">Active Goals</div>
       </div>
       <div class="card text-center">
@@ -48,7 +43,7 @@
           class="flex items-center gap-3 px-5 py-2.5 hover:bg-red-50/50 transition-all">
           <div class="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
           <span class="text-sm text-slate-700 flex-1">{{ task.title }}</span>
-          <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task) }}d overdue</span>
+          <span class="text-xs text-red-400 font-medium flex-shrink-0">{{ daysOverdue(task.dueDate || task.endDate || '') }}d overdue</span>
         </div>
       </div>
     </div>
@@ -75,7 +70,6 @@
             v-for="goal in goalStore.goals.slice(0, 4)"
             :key="goal._id"
             :goal="goal"
-            @edit="() => {}"
             @delete="() => {}"
           />
         </div>
@@ -168,7 +162,9 @@ import { useAuthStore } from '../stores/authStore'
 import { useGoalStore } from '../stores/goalStore'
 import { useTaskStore } from '../stores/taskStore'
 import GoalCard from '../components/goals/GoalCard.vue'
+import UserAvatar from '../components/shared/UserAvatar.vue'
 import { icon } from '../utils/icons'
+import { daysOverdue } from '../utils/dateUtils'
 
 const auth = useAuthStore()
 const goalStore = useGoalStore()
@@ -190,13 +186,6 @@ const overdueTasks = computed(() =>
     return false
   })
 )
-
-function daysOverdue(task: { dueDate?: string; endDate?: string }): number {
-  const dueStr = task.dueDate
-    ? new Date(task.dueDate).toISOString().split('T')[0]
-    : task.endDate!.split('T')[0]
-  return Math.floor((new Date(todayStr).getTime() - new Date(dueStr).getTime()) / 86400000)
-}
 
 onMounted(async () => {
   await Promise.all([

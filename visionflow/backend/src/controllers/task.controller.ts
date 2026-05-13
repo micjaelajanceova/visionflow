@@ -1,7 +1,13 @@
 import { Request, Response } from 'express'
 import Task from '../models/Task'
 import User from '../models/User'
+import { countOccurrences } from '../utils/taskUtils'
 
+/**
+ * Builds a MongoDB filter that returns tasks the user either owns
+ * or has been accepted as a participant on. Used for all task queries
+ * to ensure shared tasks are always visible to all participants.
+ */
 const participantFilter = (userId: string) => ({
   $or: [
     { user: userId },
@@ -9,6 +15,7 @@ const participantFilter = (userId: string) => ({
   ],
 })
 
+// GET /api/tasks — returns all tasks (owned + accepted shared) for the logged-in user
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
     const tasks = await Task.find(participantFilter(req.user!.id))
@@ -21,6 +28,7 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
+// GET /api/tasks/invites/pending — returns tasks the user has been invited to but not yet accepted
 export const getPendingInvites = async (req: Request, res: Response): Promise<void> => {
   try {
     const tasks = await Task.find({
@@ -32,6 +40,7 @@ export const getPendingInvites = async (req: Request, res: Response): Promise<vo
   }
 }
 
+// POST /api/tasks/:id/invite — invites a user by email to collaborate on a task
 export const inviteToTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body
@@ -102,8 +111,6 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id
-    const isOwner = await Task.exists({ _id: req.params.id, user: userId })
-
     const populate = [
       { path: 'user', select: 'username avatarUrl' },
       { path: 'participants.userId', select: 'username avatarUrl' },
@@ -272,20 +279,4 @@ export const getPublicCompletionPhotos = async (_req: Request, res: Response): P
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
   }
-}
-
-function countOccurrences(task: any): number {
-  if (!task.isRecurring || !task.recurringDays?.length || !task.startDate) return 1
-  const start = new Date(task.startDate)
-  const end = task.goal?.targetDate ? new Date(task.goal.targetDate) : new Date()
-  start.setHours(0, 0, 0, 0)
-  end.setHours(0, 0, 0, 0)
-  let count = 0
-  const cur = new Date(start)
-  while (cur <= end) {
-    const day = (cur.getDay() + 6) % 7
-    if (task.recurringDays.includes(day)) count++
-    cur.setDate(cur.getDate() + 1)
-  }
-  return count || 1
 }

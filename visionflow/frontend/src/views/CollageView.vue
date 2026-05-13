@@ -11,9 +11,7 @@
       <button @click="showAddPicture = true" class="btn btn-primary">+ Add Picture</button>
     </div>
 
-    <div v-if="goalStore.loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-    </div>
+    <LoadingSpinner v-if="goalStore.loading" />
 
     <div v-else-if="goalStore.goals.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
@@ -129,11 +127,10 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGoalStore } from '../stores/goalStore'
 import { icon } from '../utils/icons'
+import LoadingSpinner from '../components/shared/LoadingSpinner.vue'
 
 const goalStore = useGoalStore()
 const router = useRouter()
-
-onMounted(() => goalStore.fetchGoals())
 
 const goalsWithImages = computed(() => goalStore.goals.filter(g => g.imageData))
 
@@ -153,14 +150,17 @@ const closeAddPicture = () => {
   picGoalId.value = ''
   picPreview.value = ''
   picData.value = ''
+  // Reset input so selecting the same file again triggers @change
+  if (picInput.value) picInput.value.value = ''
 }
 
 const loadFile = (file: File) => {
   if (!file.type.startsWith('image/')) return
   const reader = new FileReader()
   reader.onload = (e) => {
-    picData.value = e.target?.result as string
-    picPreview.value = e.target?.result as string
+    const result = e.target?.result as string
+    picData.value = result
+    picPreview.value = result
   }
   reader.readAsDataURL(file)
 }
@@ -191,4 +191,6 @@ const removeImage = async (goalId: string) => {
     await goalStore.updateGoal(goalId, { imageData: null } as any)
   }
 }
+
+onMounted(() => goalStore.fetchGoals())
 </script>

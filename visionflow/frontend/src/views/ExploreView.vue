@@ -8,9 +8,7 @@
       <p class="text-slate-500 mt-1">Goals and progress shared by the community</p>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-    </div>
+    <LoadingSpinner v-if="loading" />
 
     <div v-else-if="allItems.length === 0" class="text-center py-24">
       <div class="flex justify-center mb-4">
@@ -30,14 +28,15 @@
           v-for="goal in doneGoals"
           :key="'goal-' + goal._id"
           class="break-inside-avoid mb-4 group rounded-xl overflow-hidden relative"
-          :class="isMyId((goal.user as any)?._id) ? 'cursor-pointer' : 'cursor-default'"
+          :class="isMyId(goal.user?._id) ? 'cursor-pointer' : 'cursor-default'"
           @click="handleGoalClick(goal)"
         >
           <!-- With image: text overlay -->
           <div v-if="goal.donePhoto || goal.imageData" class="relative overflow-hidden">
             <img
               :src="(goal.donePhoto || goal.imageData)!"
-              class="w-fullobject-cover block transition-transform duration-300"
+              class="w-full object-cover block transition-transform duration-300"
+              :class="isMyId(goal.user?._id) ? 'group-hover:scale-105' : ''"
               style="max-height:500px;max-width:100%;"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
@@ -47,13 +46,16 @@
               </span>
               <p class="text-sm font-semibold text-white leading-snug drop-shadow">{{ goal.title }}</p>
               <div class="flex items-center justify-between mt-1.5">
-                <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
+                <router-link :to="`/users/${goal.user?._id}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ goal.user?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
               </div>
-              <div v-if="isAdmin" class="flex gap-1 mt-2">
-                <button @click.stop="adminDeleteGoalPhoto(goal._id)" class="text-xs bg-red-500/80 hover:bg-red-600 text-white rounded px-2 py-0.5 border-0 cursor-pointer">Delete photo</button>
-                <button @click.stop="adminToggleBlock((goal.user as any)?._id, (goal.user as any)?.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked((goal.user as any)?._id) ? 'Unblock user' : 'Block user' }}</button>
-              </div>
+              <AdminCardActions
+                v-if="isAdmin"
+                :show-delete-photo="true"
+                :is-blocked="isBlocked(goal.user?._id ?? '')"
+                @delete-photo="adminDeleteGoalPhoto(goal._id)"
+                @toggle-block="adminToggleBlock(goal.user?._id ?? '', goal.user?.username ?? '')"
+              />
             </div>
           </div>
 
@@ -69,12 +71,14 @@
               </span>
               <p class="text-sm font-semibold text-white leading-snug">{{ goal.title }}</p>
               <div class="flex items-center justify-between mt-1">
-                <router-link :to="`/users/${(goal.user as any)?._id}`" @click.stop class="text-xs text-white/75 hover:text-white transition-colors">{{ (goal.user as any)?.username || '' }}</router-link>
+                <router-link :to="`/users/${goal.user?._id}`" @click.stop class="text-xs text-white/75 hover:text-white transition-colors">{{ goal.user?.username || '' }}</router-link>
                 <span class="text-xs text-white/60">{{ goal.doneAt ? formatDate(goal.doneAt) : '' }}</span>
               </div>
-              <div v-if="isAdmin" class="flex gap-1 mt-2">
-                <button @click.stop="adminToggleBlock((goal.user as any)?._id, (goal.user as any)?.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked((goal.user as any)?._id) ? 'Unblock user' : 'Block user' }}</button>
-              </div>
+              <AdminCardActions
+                v-if="isAdmin"
+                :is-blocked="isBlocked(goal.user?._id ?? '')"
+                @toggle-block="adminToggleBlock(goal.user?._id ?? '', goal.user?.username ?? '')"
+              />
             </div>
           </div>
         </div>
@@ -91,6 +95,7 @@
             <img
               :src="photo.photoData"
               class="w-full object-cover block transition-transform duration-300"
+              :class="isMyId(photo.userId) && photo.goalId ? 'group-hover:scale-105' : ''"
               style="max-height:500px;max-width:100%;"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
@@ -104,10 +109,13 @@
                 <router-link :to="`/users/${photo.userId}`" @click.stop class="text-xs text-white/75 font-medium hover:text-white transition-colors">{{ photo.username }}</router-link>
                 <span class="text-xs text-white/60">{{ formatDate(photo.date) }}</span>
               </div>
-              <div v-if="isAdmin" class="flex gap-1 mt-2">
-                <button @click.stop="adminDeleteTaskPhoto(photo.taskId, photo.date)" class="text-xs bg-red-500/80 hover:bg-red-600 text-white rounded px-2 py-0.5 border-0 cursor-pointer">Delete photo</button>
-                <button @click.stop="adminToggleBlock(photo.userId, photo.username)" class="text-xs bg-slate-700/80 hover:bg-slate-900 text-white rounded px-2 py-0.5 border-0 cursor-pointer">{{ isBlocked(photo.userId) ? 'Unblock user' : 'Block user' }}</button>
-              </div>
+              <AdminCardActions
+                v-if="isAdmin"
+                :show-delete-photo="true"
+                :is-blocked="isBlocked(photo.userId)"
+                @delete-photo="adminDeleteTaskPhoto(photo.taskId, photo.date)"
+                @toggle-block="adminToggleBlock(photo.userId, photo.username)"
+              />
             </div>
           </div>
         </div>
@@ -123,9 +131,16 @@ import client from '../api/client'
 import type { Goal } from '../types/Goal'
 import { icon } from '../utils/icons'
 import { useAuthStore } from '../stores/authStore'
+import { formatDate } from '../utils/dateUtils'
+import { useCategoryColors } from '../composables/useCategoryColors'
+import { useCurrentUser } from '../composables/useCurrentUser'
+import LoadingSpinner from '../components/shared/LoadingSpinner.vue'
+import AdminCardActions from '../components/shared/AdminCardActions.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { isMyId } = useCurrentUser()
+const { catGradient, catIcon } = useCategoryColors()
 const loading = ref(false)
 const doneGoals = ref<Goal[]>([])
 
@@ -163,10 +178,8 @@ const adminToggleBlock = async (userId: string, username: string) => {
   blockedUserIds.value = next
 }
 
-const isMyId = (id: unknown) => !!authStore.user?.id && String(id) === String(authStore.user.id)
-
 const handleGoalClick = (goal: Goal) => {
-  if (isMyId((goal.user as any)?._id)) router.push(`/goals/${goal._id}`)
+  if (isMyId(goal.user?._id)) router.push(`/goals/${goal._id}`)
 }
 
 const handlePhotoClick = (photo: TaskPhoto) => {
@@ -174,20 +187,6 @@ const handlePhotoClick = (photo: TaskPhoto) => {
 }
 
 const allItems = computed(() => [...doneGoals.value, ...taskPhotos.value])
-
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-
-const catGradient = (cat: string) => ({
-  Health: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
-  Career: 'bg-gradient-to-br from-indigo-400 to-indigo-600',
-  Finance: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
-  Education: 'bg-gradient-to-br from-purple-400 to-purple-600',
-  Personal: 'bg-gradient-to-br from-pink-400 to-pink-600',
-  Other: 'bg-gradient-to-br from-slate-400 to-slate-600',
-}[cat] || 'bg-gradient-to-br from-slate-400 to-slate-600')
-
-const catIcon = (cat: string) => ({ Health: 'checkCircle', Career: 'progress', Finance: 'bolt', Education: 'clipboard', Personal: 'hand', Other: 'goals' }[cat] || 'goals') as Parameters<typeof icon>[0]
 
 onMounted(async () => {
   loading.value = true

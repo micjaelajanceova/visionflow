@@ -4,12 +4,10 @@
       ← Back to Goals
     </router-link>
 
-    <div v-if="!goal" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-    </div>
+    <LoadingSpinner v-if="!goal" />
 
     <div v-else>
-      <!-- Header card -->
+      <!-- ─── Goal header card ─── -->
       <div class="card mb-6">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div class="flex flex-wrap gap-2">
@@ -25,28 +23,26 @@
           <div class="flex items-center gap-2">
             <span class="text-sm text-slate-400 flex items-center gap-1">
               <span class="text-slate-400" v-html="icon('calendar', 'w-4 h-4')" />
-              Due {{ formatDate(goal.targetDate) }}
+              Due {{ formatDateLong(goal.targetDate) }}
             </span>
-            <button v-if="!goal.isDone" @click="openEditGoal" class="btn btn-secondary text-xs py-1.5 px-3">Edit</button>
+            <button v-if="!goal.isDone" @click="showEditGoal = true" class="btn btn-secondary text-xs py-1.5 px-3">Edit</button>
           </div>
         </div>
 
         <h1 class="text-2xl font-bold text-slate-900 mb-2">{{ goal.title }}</h1>
         <p v-if="goal.description" class="text-slate-600">{{ goal.description }}</p>
+        <img v-if="goal.imageData" :src="goal.imageData" :alt="goal.title" class="w-full max-h-80 object-cover rounded-xl mt-4" style="max-height:320px;" />
 
-        <img v-if="goal.imageData" :src="goal.imageData" :alt="goal.title" class="w-full max-h-80 max-w-full object-cover rounded-xl mt-4" style="max-height:320px;max-width:100%;" />
-
-        <!-- Done button -->
+        <!-- Mark as done / completed state -->
         <div v-if="!goal.isDone" class="mt-4 pt-4 border-t border-slate-100">
           <button @click="showDoneModal = true" class="btn btn-success gap-2">
-            <span v-html="icon('trophy', 'w-4 h-4')" />
-            Mark as Done
+            <span v-html="icon('trophy', 'w-4 h-4')" />Mark as Done
           </button>
         </div>
         <div v-else class="mt-4 pt-4 border-t border-slate-100">
-          <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex items-center justify-between gap-2">
             <p class="text-sm text-emerald-600 font-medium">
-              Completed on {{ goal.doneAt ? formatDate(goal.doneAt) : '' }}
+              Completed on {{ goal.doneAt ? formatDateLong(goal.doneAt) : '' }}
             </p>
             <button @click="undoDone" class="btn btn-secondary text-xs py-1 px-3 text-slate-500">
               Undo completion
@@ -55,7 +51,7 @@
         </div>
       </div>
 
-      <!-- Goal tasks -->
+      <!-- ─── Goal tasks ─── -->
       <div class="card">
         <div class="flex items-center justify-between mb-4">
           <h2 class="font-semibold text-slate-900 flex items-center gap-2">
@@ -71,6 +67,7 @@
           No tasks yet — add your first recurring task!
         </div>
 
+        <!-- Task list with progress bars -->
         <div v-else class="space-y-3">
           <div v-for="{ task, stats } in goalTasksWithStats" :key="task._id" class="border border-slate-100 rounded-xl p-4">
             <div class="flex items-start justify-between gap-2">
@@ -92,20 +89,18 @@
               </div>
             </div>
             <div class="mt-3">
-              <div class="flex justify-between text-xs mb-1">
-                <span class="text-slate-600">{{ stats.completed }}/{{ stats.total }} days done</span>
-                <span class="font-semibold text-slate-700">{{ stats.percent }}%</span>
-              </div>
-              <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" :style="{ width: stats.percent + '%' }" />
-              </div>
+              <ProgressBar
+                label=""
+                :percentage="stats.percent"
+                :subtext="`${stats.completed}/${stats.total} days done`"
+              />
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Add/Edit Task Modal -->
+    <!-- ─── Add / Edit Task Modal ─── -->
     <div v-if="showTaskForm" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeTaskForm">
       <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
@@ -118,18 +113,17 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Task name *</label>
             <input v-model="taskForm.title" required placeholder="e.g. Go to the gym" class="input" />
           </div>
-
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
             <textarea v-model="taskForm.description" rows="2" placeholder="e.g. Workout split for this day" class="input resize-none" />
           </div>
 
+          <!-- Day selector — Mon=0 ... Sun=6 -->
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-2">Repeat on days *</label>
             <div class="flex gap-1.5 flex-wrap">
               <button
-                v-for="(name, i) in dayNames"
-                :key="i"
+                v-for="(name, i) in dayNames" :key="i"
                 type="button"
                 @click="toggleDay(i)"
                 class="px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer"
@@ -143,15 +137,11 @@
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-2">Timing</label>
             <div class="flex gap-2">
-              <button
-                type="button"
-                @click="taskForm.isAllDay = true"
+              <button type="button" @click="taskForm.isAllDay = true"
                 class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
                 :class="taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
               >All day</button>
-              <button
-                type="button"
-                @click="taskForm.isAllDay = false"
+              <button type="button" @click="taskForm.isAllDay = false"
                 class="flex-1 py-2 rounded-xl text-sm font-medium border transition-all cursor-pointer"
                 :class="!taskForm.isAllDay ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-indigo-300'"
               >Specific time</button>
@@ -169,83 +159,22 @@
       </div>
     </div>
 
-    <!-- Edit Goal Modal -->
-    <div v-if="showEditGoal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showEditGoal = false">
-      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-slate-900">Edit Goal</h2>
-          <button @click="showEditGoal = false" class="text-slate-400 hover:text-slate-600 text-2xl bg-transparent border-0 cursor-pointer">×</button>
-        </div>
-        <form @submit.prevent="submitEditGoal" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Title *</label>
-            <input v-model="editGoalForm.title" required class="input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-            <textarea v-model="editGoalForm.description" rows="2" class="input resize-none" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-            <select v-model="editGoalForm.category" class="input">
-              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Target date *</label>
-            <input v-model="editGoalForm.targetDate" type="date" required class="input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Picture</label>
-            <div
-              class="border-2 border-dashed border-slate-200 rounded-xl p-3 text-center cursor-pointer hover:border-indigo-400 transition-all"
-              @click="editPicInput?.click()"
-            >
-              <img v-if="editGoalForm.imagePreview" :src="editGoalForm.imagePreview" class="max-h-36 mx-auto rounded-lg object-cover mb-2" />
-              <p class="text-xs text-slate-400">{{ editGoalForm.imagePreview ? 'Click to replace' : 'Click to add a picture' }}</p>
-            </div>
-            <input ref="editPicInput" type="file" accept="image/*" class="hidden" @change="handleEditPic" />
-            <button
-              v-if="editGoalForm.imagePreview"
-              type="button"
-              @click="editGoalForm.imagePreview = ''; editGoalForm.imageData = null"
-              class="btn btn-secondary text-xs mt-2 text-red-500"
-            >Remove picture</button>
-          </div>
-          <div class="flex gap-3 pt-1">
-            <button type="submit" class="btn btn-primary flex-1">Save Changes</button>
-            <button type="button" @click="showEditGoal = false" class="btn btn-secondary px-6">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- ─── Edit Goal Modal (extracted component) ─── -->
+    <GoalEditModal
+      v-if="showEditGoal && goal"
+      :goal="goal"
+      :categories="categories"
+      @close="showEditGoal = false"
+      @saved="onGoalSaved"
+    />
 
-    <!-- Done Modal -->
-    <div v-if="showDoneModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showDoneModal = false">
-      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <span class="text-indigo-500" v-html="icon('trophy', 'w-5 h-5')" />Goal Completed!
-          </h2>
-          <button @click="showDoneModal = false" class="text-slate-400 hover:text-slate-600 text-2xl bg-transparent border-0 cursor-pointer">×</button>
-        </div>
-        <p class="text-sm text-slate-500 mb-4">Congratulations! You can share your achievement on the Explore page.</p>
-
-        <div v-if="goal?.imageData" class="mb-4 rounded-xl overflow-hidden border border-slate-100">
-          <img :src="goal.imageData" class="w-full object-cover" style="max-height:200px;" />
-        </div>
-
-        <label class="flex items-center gap-3 cursor-pointer mb-4">
-          <input v-model="donePublic" type="checkbox" class="w-4 h-4 accent-indigo-600" />
-          <span class="text-sm text-slate-700">Share on Explore page</span>
-        </label>
-
-        <div class="flex gap-3">
-          <button @click="submitDone" class="btn btn-success flex-1">Mark as Done</button>
-          <button @click="showDoneModal = false" class="btn btn-secondary px-6">Cancel</button>
-        </div>
-      </div>
-    </div>
+    <!-- ─── Mark as Done Modal (extracted component) ─── -->
+    <GoalDoneModal
+      v-if="showDoneModal && goal"
+      :goal="goal"
+      @close="showDoneModal = false"
+      @done="onGoalDone"
+    />
   </div>
 </template>
 
@@ -258,61 +187,27 @@ import type { Goal } from '../types/Goal'
 import type { Task } from '../types/Task'
 import client from '../api/client'
 import { icon } from '../utils/icons'
+import { formatDateLong } from '../utils/dateUtils'
+import GoalEditModal from '../components/goals/GoalEditModal.vue'
+import GoalDoneModal from '../components/goals/GoalDoneModal.vue'
+import LoadingSpinner from '../components/shared/LoadingSpinner.vue'
+import ProgressBar from '../components/ProgressBar.vue'
 
 const route = useRoute()
 const goalStore = useGoalStore()
 const taskStore = useTaskStore()
 
+// ─── State ───────────────────────────────────────────────
 const goal = ref<Goal | null>(null)
 const showTaskForm = ref(false)
-const editingTask = ref<Task | null>(null)
-const showDoneModal = ref(false)
 const showEditGoal = ref(false)
+const showDoneModal = ref(false)
+const editingTask = ref<Task | null>(null)
+
 const categories = ['Health', 'Career', 'Finance', 'Education', 'Personal', 'Other']
-const editGoalForm = reactive({ title: '', description: '', category: '', targetDate: '', isPublic: false, imagePreview: '', imageData: null as string | null })
-const editPicInput = ref<HTMLInputElement | null>(null)
-
-const openEditGoal = () => {
-  if (!goal.value) return
-  editGoalForm.title = goal.value.title
-  editGoalForm.description = goal.value.description || ''
-  editGoalForm.category = goal.value.category
-  editGoalForm.targetDate = new Date(goal.value.targetDate).toISOString().split('T')[0]
-  editGoalForm.isPublic = goal.value.isPublic
-  editGoalForm.imagePreview = goal.value.imageData || ''
-  editGoalForm.imageData = goal.value.imageData || null
-  showEditGoal.value = true
-}
-
-const handleEditPic = (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (ev) => {
-    const result = ev.target?.result as string
-    editGoalForm.imagePreview = result
-    editGoalForm.imageData = result
-  }
-  reader.readAsDataURL(file)
-}
-
-const submitEditGoal = async () => {
-  if (!goal.value) return
-  const updated = await goalStore.updateGoal(goal.value._id, {
-    title: editGoalForm.title,
-    description: editGoalForm.description,
-    category: editGoalForm.category as any,
-    targetDate: editGoalForm.targetDate as any,
-    isPublic: editGoalForm.isPublic,
-    imageData: editGoalForm.imageData,
-  })
-  goal.value = updated
-  showEditGoal.value = false
-}
-const donePublic = ref(false)
-
 const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+// Form state for add/edit task modal
 const taskForm = reactive({
   title: '',
   description: '',
@@ -321,10 +216,14 @@ const taskForm = reactive({
   time: '',
 })
 
+// ─── Computed ────────────────────────────────────────────
+
+// Filter tasks that belong to this goal
 const goalTasks = computed(() =>
   taskStore.tasks.filter(t => t.goal === goal.value?._id || t.goalId === goal.value?._id)
 )
 
+// Enrich each task with completion stats (completed / total / percent)
 const goalTasksWithStats = computed(() =>
   goalTasks.value.map(task => {
     if (!goal.value) return { task, stats: { completed: 0, total: 0, percent: 0 } }
@@ -335,7 +234,7 @@ const goalTasksWithStats = computed(() =>
     let total = 0
     const cur = new Date(start)
     while (cur <= end) {
-      const day = (cur.getDay() + 6) % 7
+      const day = (cur.getDay() + 6) % 7 // Mon=0 ... Sun=6
       if (!task.isRecurring || task.recurringDays.includes(day)) total++
       cur.setDate(cur.getDate() + 1)
     }
@@ -346,16 +245,27 @@ const goalTasksWithStats = computed(() =>
   })
 )
 
-const isOverdue = computed(() => {
-  if (!goal.value || goal.value.isDone) return false
-  return new Date(goal.value.targetDate) < new Date()
-})
+const isOverdue = computed(() =>
+  !!goal.value && !goal.value.isDone && new Date(goal.value.targetDate) < new Date()
+)
 
-const daysLeft = computed(() => {
-  if (!goal.value) return 0
-  return Math.abs(Math.ceil((new Date(goal.value.targetDate).getTime() - Date.now()) / 86400000))
-})
+const daysLeft = computed(() =>
+  goal.value ? Math.abs(Math.ceil((new Date(goal.value.targetDate).getTime() - Date.now()) / 86400000)) : 0
+)
 
+// ─── Modal event handlers ─────────────────────────────────
+
+const onGoalSaved = (updated: Goal) => {
+  goal.value = updated
+  showEditGoal.value = false
+}
+
+const onGoalDone = (updated: Goal) => {
+  goal.value = updated
+  showDoneModal.value = false
+}
+
+// ─── Task form handlers ───────────────────────────────────
 
 const toggleDay = (day: number) => {
   const idx = taskForm.recurringDays.indexOf(day)
@@ -376,16 +286,12 @@ const openEditTask = (task: Task) => {
 const closeTaskForm = () => {
   showTaskForm.value = false
   editingTask.value = null
-  taskForm.title = ''
-  taskForm.description = ''
-  taskForm.recurringDays = []
-  taskForm.isAllDay = true
-  taskForm.time = ''
+  Object.assign(taskForm, { title: '', description: '', recurringDays: [], isAllDay: true, time: '' })
 }
 
 const submitTask = async () => {
   if (!goal.value) return
-  const data = {
+  const payload = {
     title: taskForm.title,
     description: taskForm.description,
     isRecurring: true,
@@ -395,12 +301,12 @@ const submitTask = async () => {
     goal: goal.value._id,
     startDate: new Date().toISOString(),
     endDate: goal.value.targetDate,
-    priority: 'medium',
+    priority: 'medium' as const,
   }
   if (editingTask.value) {
-    await taskStore.updateTask(editingTask.value._id, data)
+    await taskStore.updateTask(editingTask.value._id, payload)
   } else {
-    await taskStore.createTask(data)
+    await taskStore.createTask(payload)
   }
   closeTaskForm()
 }
@@ -409,18 +315,11 @@ const deleteGoalTask = async (id: string) => {
   if (confirm('Delete this task?')) await taskStore.deleteTask(id)
 }
 
-
-const submitDone = async () => {
-  if (!goal.value) return
-  await goalStore.markDone(goal.value._id, goal.value.imageData || undefined, donePublic.value)
-  const { data } = await client.get(`/goals/${goal.value._id}`)
-  goal.value = data
-  showDoneModal.value = false
-}
+// ─── Undo completion ──────────────────────────────────────
 
 const undoDone = async () => {
-  if (!goal.value) return
-  if (!confirm('Mark this goal as not completed?')) return
+  if (!goal.value || !confirm('Mark this goal as not completed?')) return
+  // Pass null values to unset doneAt / donePhoto fields in the backend
   const updated = await goalStore.updateGoal(goal.value._id, {
     isDone: false,
     doneAt: null,
@@ -430,8 +329,7 @@ const undoDone = async () => {
   goal.value = updated
 }
 
-const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+// ─── Lifecycle ────────────────────────────────────────────
 
 onMounted(async () => {
   const id = route.params.id as string

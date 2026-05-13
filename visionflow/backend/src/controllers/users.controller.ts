@@ -3,22 +3,7 @@ import User from '../models/User'
 import Task from '../models/Task'
 import Goal from '../models/Goal'
 import mongoose from 'mongoose'
-
-function countOccurrences(task: any): number {
-  if (!task.isRecurring || !task.recurringDays?.length || !task.startDate) return 1
-  const start = new Date(task.startDate)
-  const end = task.goal?.targetDate ? new Date(task.goal.targetDate) : new Date()
-  start.setHours(0, 0, 0, 0)
-  end.setHours(0, 0, 0, 0)
-  let count = 0
-  const cur = new Date(start)
-  while (cur <= end) {
-    const day = (cur.getDay() + 6) % 7
-    if (task.recurringDays.includes(day)) count++
-    cur.setDate(cur.getDate() + 1)
-  }
-  return count || 1
-}
+import { countOccurrences } from '../utils/taskUtils'
 
 export const getUserPublicProfile = async (req: Request, res: Response): Promise<void> => {
   try {

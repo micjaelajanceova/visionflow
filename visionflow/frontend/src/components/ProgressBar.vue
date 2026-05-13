@@ -1,18 +1,32 @@
 <template>
-  <div class="mb-3">
-    <div class="flex justify-between text-sm mb-1">
-      <span class="text-slate-700 font-medium">{{ label }}</span>
-      <span class="text-slate-400">{{ percentage }}%</span>
+  <div>
+    <div class="flex justify-between text-xs mb-0.5">
+      <span v-if="label" class="text-slate-600 truncate mr-2">{{ label }}</span>
+      <span class="font-semibold text-slate-700 flex-shrink-0 ml-auto">{{ percentage }}%</span>
     </div>
-    <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
       <div
         class="h-full rounded-full transition-all duration-500"
-        :style="{ width: percentage + '%', backgroundColor: color }"
+        :class="colorClass ?? 'bg-indigo-500'"
+        :style="{ width: percentage + '%' }"
       />
     </div>
+    <p v-if="subtext" class="text-xs text-slate-400 mt-0.5">{{ subtext }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ label: string; percentage: number; color: string }>()
+/**
+ * Reusable progress bar.
+ * - label: text shown on the left
+ * - percentage: 0–100
+ * - colorClass: Tailwind bg class (e.g. 'bg-indigo-500') — defaults to indigo
+ * - subtext: optional small text shown below the bar (e.g. "2/5 days done")
+ */
+defineProps<{
+  label: string
+  percentage: number
+  colorClass?: string
+  subtext?: string
+}>()
 </script>

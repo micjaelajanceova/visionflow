@@ -8,7 +8,6 @@ import connectDB from './config/db'
 import authRoutes from './routes/auth.routes'
 import goalRoutes from './routes/goal.routes'
 import taskRoutes from './routes/task.routes'
-import progressRoutes from './routes/progress.routes'
 import usersRoutes from './routes/users.routes'
 import adminRoutes from './routes/admin.routes'
 import { setupSwagger } from './config/swagger'
@@ -55,7 +54,6 @@ app.use(mongoSanitize())
 app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/goals', apiLimiter, goalRoutes)
 app.use('/api/tasks', apiLimiter, taskRoutes)
-app.use('/api/progress', apiLimiter, progressRoutes)
 app.use('/api/users', apiLimiter, usersRoutes)
 app.use('/api/admin', apiLimiter, adminRoutes)
 

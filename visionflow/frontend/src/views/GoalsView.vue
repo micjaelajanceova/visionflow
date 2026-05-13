@@ -22,9 +22,7 @@
       >{{ cat }}</button>
     </div>
 
-    <div v-if="goalStore.loading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
-    </div>
+    <LoadingSpinner v-if="goalStore.loading" />
 
     <div v-else-if="filteredGoals.length === 0" class="text-center py-20">
       <div class="flex justify-center mb-4">
@@ -40,14 +38,12 @@
         v-for="goal in filteredGoals"
         :key="goal._id"
         :goal="goal"
-        @edit="openEdit"
         @delete="handleDelete"
       />
     </div>
 
     <GoalForm
       v-if="showForm"
-      :editing-goal="editingGoal"
       @done="closeForm"
       @close="closeForm"
     />
@@ -57,14 +53,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useGoalStore } from '../stores/goalStore'
-import type { Goal } from '../types/Goal'
 import GoalCard from '../components/goals/GoalCard.vue'
 import GoalForm from '../components/goals/GoalForm.vue'
+import LoadingSpinner from '../components/shared/LoadingSpinner.vue'
 import { icon } from '../utils/icons'
 
 const goalStore = useGoalStore()
 const showForm = ref(false)
-const editingGoal = ref<Goal | null>(null)
 const filterCategory = ref('')
 const categories = ['Health', 'Career', 'Finance', 'Education', 'Personal', 'Other']
 
@@ -74,8 +69,7 @@ const filteredGoals = computed(() =>
     : goalStore.goals
 )
 
-const openEdit = (goal: Goal) => { editingGoal.value = goal; showForm.value = true }
-const closeForm = () => { showForm.value = false; editingGoal.value = null }
+const closeForm = () => { showForm.value = false }
 
 const handleDelete = async (id: string) => {
   if (confirm('Delete this goal?')) await goalStore.deleteGoal(id)
