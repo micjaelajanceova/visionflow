@@ -108,7 +108,7 @@
                 <p class="text-xs text-slate-400 mt-1">JPG, PNG, WEBP</p>
               </div>
             </div>
-            <input ref="picInput" type="file" accept="image/*" capture="environment" class="hidden" @change="handlePicUpload" />
+            <input ref="picInput" type="file" accept="image/*" class="hidden" @change="handlePicUpload" />
           </div>
 
           <div class="flex gap-3 pt-1">
